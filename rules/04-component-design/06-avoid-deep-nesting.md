@@ -1,19 +1,19 @@
 ---
 id: component-06
-title: 避免过深的组件嵌套
+title: Avoid Deep Component Nesting
 priority: medium
 category: component-design
 tags: [component, nesting, performance]
 ---
 
-# 避免过深的组件嵌套
+# Avoid Deep Component Nesting
 
-## 问题
-过深的组件嵌套增加渲染开销，降低代码可维护性。
+## Problem
+Deep component nesting increases rendering overhead and reduces code maintainability.
 
-## 错误示例
+## Bad Example
 ```vue
-<!-- 过度抽象 -->
+<!-- Over-abstraction -->
 <template>
   <PageWrapper>
     <ContentContainer>
@@ -34,9 +34,9 @@ tags: [component, nesting, performance]
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
-<!-- 扁平化结构 -->
+<!-- Flattened structure -->
 <template>
   <div class="page">
     <main class="content">
@@ -48,7 +48,7 @@ tags: [component, nesting, performance]
   </div>
 </template>
 
-<!-- 或者只抽象有意义的组件 -->
+<!-- Or only abstract meaningful components -->
 <template>
   <PageLayout>
     <Card :title="title">
@@ -58,33 +58,33 @@ tags: [component, nesting, performance]
 </template>
 ```
 
-## 合理的组件拆分原则
+## Reasonable Component Splitting Principles
 ```vue
 <script setup lang="ts">
-// ✅ 有逻辑复用价值
-// ✅ 有独立的状态管理
-// ✅ 会在多处使用
-// ✅ 提升可读性
+// ✅ Has logic reuse value
+// ✅ Has independent state management
+// ✅ Will be used in multiple places
+// ✅ Improves readability
 
-// ❌ 只是简单的 DOM 包装
-// ❌ 只使用一次
-// ❌ 没有自己的状态或逻辑
+// ❌ Just simple DOM wrapper
+// ❌ Only used once
+// ❌ No own state or logic
 </script>
 ```
 
-## 使用 Slot 代替嵌套
+## Use Slots Instead of Nesting
 ```vue
-<!-- 不要 -->
+<!-- Don't do this -->
 <Card>
   <CardHeader>
-    <CardTitle>标题</CardTitle>
+    <CardTitle>Title</CardTitle>
   </CardHeader>
-  <CardBody>内容</CardBody>
+  <CardBody>Content</CardBody>
 </Card>
 
-<!-- 使用 slot -->
-<Card title="标题">
-  内容
+<!-- Use slots -->
+<Card title="Title">
+  Content
 </Card>
 
 <!-- Card.vue -->
@@ -99,8 +99,8 @@ tags: [component, nesting, performance]
 </template>
 ```
 
-## 原因
-- 每个组件都有创建和渲染开销
-- 深层嵌套增加 diff 算法复杂度
-- 过度抽象降低代码可读性
-- 合理的扁平化结构更易维护
+## Why
+- Every component has creation and rendering overhead
+- Deep nesting increases diff algorithm complexity
+- Over-abstraction reduces code readability
+- Reasonable flattened structure is easier to maintain

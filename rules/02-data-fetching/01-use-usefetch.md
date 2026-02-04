@@ -1,41 +1,41 @@
 ---
 id: fetch-01
-title: 使用 useFetch 而非 $fetch
+title: Use useFetch Instead of $fetch
 priority: critical
 category: data-fetching
 tags: [data-fetching, usefetch, ssr]
 ---
 
-# 使用 useFetch 而非 $fetch
+# Use useFetch Instead of $fetch
 
-## 问题
-在组件中直接使用 `$fetch` 会导致数据重复获取，服务端获取一次，客户端 hydration 后又获取一次。
+## Problem
+Using `$fetch` directly in components causes duplicate data fetching - once on server and again after client hydration.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：$fetch 不会利用 SSR payload
+// Bad: $fetch doesn't utilize SSR payload
 const data = ref(null)
 
 onMounted(async () => {
   data.value = await $fetch('/api/users')
 })
 
-// 错误：即使在 setup 顶层也会重复请求
+// Bad: Even at setup top level, request is duplicated
 const users = await $fetch('/api/users')
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 正确：useFetch 自动处理 SSR 缓存
+// Correct: useFetch automatically handles SSR caching
 const { data: users, pending, error, refresh } = await useFetch('/api/users')
 
-// 带参数请求
+// Request with parameters
 const { data: user } = await useFetch(() => `/api/users/${userId.value}`)
 
-// POST 请求
+// POST request
 const { data } = await useFetch('/api/users', {
   method: 'POST',
   body: { name: 'John' }
@@ -43,18 +43,18 @@ const { data } = await useFetch('/api/users', {
 </script>
 
 <template>
-  <div v-if="pending">加载中...</div>
-  <div v-else-if="error">错误: {{ error.message }}</div>
+  <div v-if="pending">Loading...</div>
+  <div v-else-if="error">Error: {{ error.message }}</div>
   <ul v-else>
     <li v-for="user in users" :key="user.id">{{ user.name }}</li>
   </ul>
 </template>
 ```
 
-## 何时使用 $fetch
+## When to Use $fetch
 ```vue
 <script setup lang="ts">
-// $fetch 适用于事件处理等非 SSR 场景
+// $fetch is suitable for event handlers and non-SSR scenarios
 async function handleSubmit() {
   await $fetch('/api/submit', {
     method: 'POST',
@@ -62,18 +62,18 @@ async function handleSubmit() {
   })
 }
 
-// 或在服务端 API 路由中
+// Or in server API routes
 // server/api/users.ts
 export default defineEventHandler(async () => {
-  // 服务端到服务端请求用 $fetch
+  // Use $fetch for server-to-server requests
   const data = await $fetch('https://external-api.com/data')
   return data
 })
 </script>
 ```
 
-## 原因
-- `useFetch` 服务端获取的数据会通过 payload 传递给客户端
-- 客户端 hydration 时直接使用缓存数据，不会重复请求
-- 提供 `pending`、`error`、`refresh` 等响应式状态
-- 自动处理请求去重和缓存
+## Why
+- Data fetched by `useFetch` on server is passed to client via payload
+- Client uses cached data during hydration, no duplicate requests
+- Provides reactive states like `pending`, `error`, `refresh`
+- Automatically handles request deduplication and caching

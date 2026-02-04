@@ -1,43 +1,43 @@
 ---
 id: ssr-06
-title: 处理异步组件的 SSR 降级
+title: Handle Async Component SSR Fallback
 priority: medium
 category: ssr-hydration
 tags: [ssr, async-component, suspense]
 ---
 
-# 处理异步组件的 SSR 降级
+# Handle Async Component SSR Fallback
 
-## 问题
-异步组件在 SSR 时可能导致加载状态闪烁或内容缺失。
+## Problem
+Async components during SSR may cause loading state flicker or missing content.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：未处理加载状态
+// Bad: Loading state not handled
 const AsyncChart = defineAsyncComponent(() => import('./Chart.vue'))
 </script>
 
 <template>
-  <!-- 服务端可能渲染空内容 -->
+  <!-- Server may render empty content -->
   <AsyncChart :data="chartData" />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const AsyncChart = defineAsyncComponent({
   loader: () => import('./Chart.vue'),
   loadingComponent: ChartSkeleton,
   errorComponent: ChartError,
-  delay: 200,  // 延迟显示 loading
+  delay: 200,  // Delay before showing loading
   timeout: 10000
 })
 </script>
 
 <template>
-  <!-- 使用 Suspense 统一处理 -->
+  <!-- Use Suspense for unified handling -->
   <Suspense>
     <AsyncChart :data="chartData" />
     <template #fallback>
@@ -47,13 +47,13 @@ const AsyncChart = defineAsyncComponent({
 </template>
 ```
 
-## Nuxt 自动懒加载
+## Nuxt Auto Lazy Loading
 ```vue
 <template>
-  <!-- Lazy 前缀自动启用懒加载 -->
+  <!-- Lazy prefix automatically enables lazy loading -->
   <LazyChart v-if="showChart" :data="chartData" />
 
-  <!-- 结合 ClientOnly -->
+  <!-- Combine with ClientOnly -->
   <ClientOnly>
     <LazyHeavyComponent />
     <template #fallback>
@@ -63,7 +63,7 @@ const AsyncChart = defineAsyncComponent({
 </template>
 ```
 
-## 原因
-- 异步组件在服务端默认会等待加载完成
-- 配置 loading/error 组件提供更好的用户体验
-- Suspense 可以统一管理多个异步依赖的加载状态
+## Why
+- Async components wait for loading to complete by default on server
+- Configuring loading/error components provides better user experience
+- Suspense can manage loading state of multiple async dependencies uniformly

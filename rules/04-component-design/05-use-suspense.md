@@ -1,35 +1,35 @@
 ---
 id: component-05
-title: 使用 Suspense 处理异步组件
+title: Use Suspense for Async Components
 priority: medium
 category: component-design
 tags: [component, suspense, async]
 ---
 
-# 使用 Suspense 处理异步组件
+# Use Suspense for Async Components
 
-## 问题
-多个异步组件的加载状态难以统一管理。
+## Problem
+Managing loading states for multiple async components individually is difficult.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：每个组件单独处理加载状态 -->
-  <div v-if="loading1">加载用户...</div>
+  <!-- Bad: Each component handles loading state separately -->
+  <div v-if="loading1">Loading user...</div>
   <UserProfile v-else :data="userData" />
 
-  <div v-if="loading2">加载文章...</div>
+  <div v-if="loading2">Loading articles...</div>
   <ArticleList v-else :data="articles" />
 
-  <div v-if="loading3">加载评论...</div>
+  <div v-if="loading3">Loading comments...</div>
   <Comments v-else :data="comments" />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- 使用 Suspense 统一处理 -->
+  <!-- Use Suspense for unified handling -->
   <Suspense>
     <template #default>
       <div class="content">
@@ -45,21 +45,21 @@ tags: [component, suspense, async]
 </template>
 
 <script setup lang="ts">
-// 子组件使用 async setup
+// Child components use async setup
 // UserProfile.vue
 const { data: user } = await useFetch('/api/user')
 </script>
 ```
 
-## 嵌套 Suspense
+## Nested Suspense
 ```vue
 <template>
   <Suspense>
-    <!-- 关键内容 -->
+    <!-- Critical content -->
     <template #default>
       <MainContent />
 
-      <!-- 嵌套 Suspense 处理非关键内容 -->
+      <!-- Nested Suspense for non-critical content -->
       <Suspense>
         <template #default>
           <Sidebar />
@@ -76,7 +76,7 @@ const { data: user } = await useFetch('/api/user')
 </template>
 ```
 
-## 错误处理
+## Error Handling
 ```vue
 <script setup lang="ts">
 import { onErrorCaptured } from 'vue'
@@ -85,14 +85,14 @@ const error = ref<Error | null>(null)
 
 onErrorCaptured((e) => {
   error.value = e
-  return false // 阻止错误继续传播
+  return false // Prevent error from propagating
 })
 </script>
 
 <template>
   <div v-if="error" class="error">
-    加载失败: {{ error.message }}
-    <button @click="error = null">重试</button>
+    Failed to load: {{ error.message }}
+    <button @click="error = null">Retry</button>
   </div>
   <Suspense v-else>
     <AsyncComponent />
@@ -103,8 +103,8 @@ onErrorCaptured((e) => {
 </template>
 ```
 
-## 原因
-- Suspense 统一管理多个异步依赖的加载状态
-- 避免多个 loading 状态导致的布局跳动
-- 配合 async setup 使用更简洁
-- 支持嵌套实现渐进式加载
+## Why
+- Suspense uniformly manages loading state for multiple async dependencies
+- Avoids layout jumping caused by multiple loading states
+- Works more cleanly with async setup
+- Supports nesting for progressive loading

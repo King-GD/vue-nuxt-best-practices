@@ -1,30 +1,30 @@
 ---
 id: ssr-03
-title: 使用 onMounted 处理浏览器 API
+title: Use onMounted for Browser APIs
 priority: critical
 category: ssr-hydration
 tags: [ssr, lifecycle, browser-api]
 ---
 
-# 使用 onMounted 处理浏览器 API
+# Use onMounted for Browser APIs
 
-## 问题
-在 `<script setup>` 顶层直接访问浏览器 API 会导致服务端渲染错误。
+## Problem
+Directly accessing browser APIs at the top level of `<script setup>` causes server-side rendering errors.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：setup 阶段在服务端也会执行
+// Bad: setup phase also runs on server
 const width = window.innerWidth
 const token = localStorage.getItem('token')
 const userAgent = navigator.userAgent
 
-// 错误：顶层添加事件监听
+// Bad: Adding event listeners at top level
 window.addEventListener('resize', handleResize)
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const width = ref(0)
@@ -32,17 +32,17 @@ const token = ref<string | null>(null)
 const userAgent = ref('')
 
 onMounted(() => {
-  // 浏览器 API 只在客户端 mounted 后访问
+  // Access browser APIs only after client-side mount
   width.value = window.innerWidth
   token.value = localStorage.getItem('token')
   userAgent.value = navigator.userAgent
 
-  // 事件监听也在 mounted 中添加
+  // Add event listeners in mounted
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  // 记得清理事件监听
+  // Remember to clean up event listeners
   window.removeEventListener('resize', handleResize)
 })
 
@@ -52,25 +52,25 @@ function handleResize() {
 </script>
 ```
 
-## 使用 VueUse 简化
+## Simplify with VueUse
 ```vue
 <script setup lang="ts">
 import { useWindowSize, useLocalStorage } from '@vueuse/core'
 
-// VueUse 的 composables 已经处理了 SSR 兼容
+// VueUse composables already handle SSR compatibility
 const { width, height } = useWindowSize()
 const token = useLocalStorage('token', null)
 </script>
 ```
 
-## 原因
-- `<script setup>` 中的代码在服务端和客户端都会执行
-- `onMounted` 只在客户端执行，此时 DOM 和浏览器 API 可用
-- 直接访问 `window`/`document` 在 Node.js 环境会抛出 ReferenceError
+## Why
+- Code in `<script setup>` runs on both server and client
+- `onMounted` only runs on client, when DOM and browser APIs are available
+- Directly accessing `window`/`document` throws ReferenceError in Node.js environment
 
-## 推荐的 VueUse Composables
-| API | VueUse 替代 |
-|-----|------------|
+## Recommended VueUse Composables
+| API | VueUse Alternative |
+|-----|-------------------|
 | window.innerWidth | `useWindowSize()` |
 | localStorage | `useLocalStorage()` |
 | navigator.userAgent | `useUserAgent()` |

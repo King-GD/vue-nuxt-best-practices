@@ -20,11 +20,11 @@
 
 ## SSR & Hydration
 
-### [CRITICAL] 避免 Hydration Mismatch
+### [CRITICAL] Avoid Hydration Mismatch
 
-服务端和客户端渲染结果不一致会导致 hydration 警告和潜在 bug。
+Inconsistent rendering results between server and client cause hydration warnings and potential bugs.
 
-**错误示例：**
+**Bad Example:**
 ```vue
 <template>
   <div>{{ Date.now() }}</div>
@@ -32,7 +32,7 @@
 </template>
 ```
 
-**正确示例：**
+**Good Example:**
 ```vue
 <template>
   <ClientOnly>
@@ -50,9 +50,9 @@ onMounted(() => {
 
 ---
 
-### [CRITICAL] 正确使用 ClientOnly 组件
+### [CRITICAL] Use ClientOnly Component Correctly
 
-某些组件只能在客户端运行（如 ECharts、地图组件）。
+Some components can only run on the client side (e.g., ECharts, map components).
 
 ```vue
 <template>
@@ -67,16 +67,16 @@ onMounted(() => {
 
 ---
 
-### [CRITICAL] 使用 onMounted 处理浏览器 API
+### [CRITICAL] Use onMounted for Browser APIs
 
-在 `<script setup>` 顶层直接访问浏览器 API 会导致 SSR 错误。
+Directly accessing browser APIs at the top level of `<script setup>` causes SSR errors.
 
-**错误：**
+**Bad:**
 ```ts
-const width = window.innerWidth // SSR 报错
+const width = window.innerWidth // SSR error
 ```
 
-**正确：**
+**Good:**
 ```ts
 const width = ref(0)
 onMounted(() => {
@@ -86,16 +86,16 @@ onMounted(() => {
 
 ---
 
-### [HIGH] 使用 import.meta.client 条件判断
+### [HIGH] Use import.meta.client for Conditional Logic
 
 ```ts
 if (import.meta.client) {
-  // 仅客户端执行
+  // Client-side only execution
   initAnalytics()
 }
 
 if (import.meta.server) {
-  // 仅服务端执行
+  // Server-side only execution
 }
 ```
 
@@ -103,31 +103,31 @@ if (import.meta.server) {
 
 ## Data Fetching
 
-### [CRITICAL] 使用 useFetch 而非 $fetch
+### [CRITICAL] Use useFetch Instead of $fetch
 
-`$fetch` 会导致数据重复获取。
+`$fetch` causes duplicate data fetching.
 
-**错误：**
+**Bad:**
 ```ts
 const data = await $fetch('/api/users')
 ```
 
-**正确：**
+**Good:**
 ```ts
 const { data, pending, error, refresh } = await useFetch('/api/users')
 ```
 
 ---
 
-### [CRITICAL] 并行化多个数据请求
+### [CRITICAL] Parallelize Multiple Data Requests
 
-**错误（串行）：**
+**Bad (Sequential):**
 ```ts
 const { data: user } = await useFetch('/api/user')
 const { data: posts } = await useFetch('/api/posts')
 ```
 
-**正确（并行）：**
+**Good (Parallel):**
 ```ts
 const [{ data: user }, { data: posts }] = await Promise.all([
   useFetch('/api/user'),
@@ -137,13 +137,13 @@ const [{ data: user }, { data: posts }] = await Promise.all([
 
 ---
 
-### [HIGH] 使用 lazy 延迟非关键数据
+### [HIGH] Use lazy for Non-Critical Data
 
 ```ts
-// 关键数据：阻塞渲染
+// Critical data: blocks rendering
 const { data: mainContent } = await useFetch('/api/content')
 
-// 非关键数据：lazy 模式
+// Non-critical data: lazy mode
 const { data: recommendations } = useLazyFetch('/api/recommend')
 ```
 
@@ -151,38 +151,38 @@ const { data: recommendations } = useLazyFetch('/api/recommend')
 
 ## Reactivity
 
-### [HIGH] 使用 shallowRef 处理大对象
+### [HIGH] Use shallowRef for Large Objects
 
 ```ts
-// 大数组使用 shallowRef
+// Use shallowRef for large arrays
 const tableData = shallowRef<User[]>([])
 
-// 更新时替换整个数组
+// Replace the entire array when updating
 tableData.value = newData
 ```
 
 ---
 
-### [CRITICAL] 避免解构 reactive 对象
+### [CRITICAL] Avoid Destructuring Reactive Objects
 
-**错误：**
+**Bad:**
 ```ts
 const { count } = reactive({ count: 0 })
-count++ // 不会触发更新
+count++ // Won't trigger updates
 ```
 
-**正确：**
+**Good:**
 ```ts
 const { count } = toRefs(reactive({ count: 0 }))
-count.value++ // 正确
+count.value++ // Correct
 ```
 
 ---
 
-### [HIGH] 正确使用 computed 缓存计算
+### [HIGH] Use computed for Caching Calculations
 
 ```ts
-// 使用 computed 而非模板表达式
+// Use computed instead of template expressions
 const activeItems = computed(() =>
   items.value.filter(i => i.active)
 )
@@ -192,28 +192,28 @@ const activeItems = computed(() =>
 
 ## Component Design
 
-### [HIGH] 使用 defineAsyncComponent 懒加载
+### [HIGH] Use defineAsyncComponent for Lazy Loading
 
 ```ts
 const HeavyChart = defineAsyncComponent(() => import('./HeavyChart.vue'))
 
-// Nuxt 自动懒加载
+// Nuxt auto lazy loading
 <LazyHeavyChart v-if="showChart" />
 ```
 
 ---
 
-### [HIGH] 正确使用 v-if vs v-show
+### [HIGH] Use v-if vs v-show Correctly
 
-| 场景 | 推荐 |
-|------|------|
-| 频繁切换 | `v-show` |
-| 条件很少变化 | `v-if` |
-| 初始为 false | `v-if` |
+| Scenario | Recommended |
+|----------|-------------|
+| Frequent toggling | `v-show` |
+| Condition rarely changes | `v-if` |
+| Initially false | `v-if` |
 
 ---
 
-### [HIGH] Props 使用 TypeScript 类型定义
+### [HIGH] Use TypeScript for Props Definition
 
 ```ts
 interface Props {
@@ -231,7 +231,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 ## Performance
 
-### [HIGH] 使用 v-memo 缓存列表项
+### [HIGH] Use v-memo to Cache List Items
 
 ```vue
 <div
@@ -245,7 +245,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 ---
 
-### [CRITICAL] 大列表使用虚拟滚动
+### [CRITICAL] Use Virtual Scrolling for Large Lists
 
 ```ts
 import { useVirtualList } from '@vueuse/core'
@@ -257,7 +257,7 @@ const { list: virtualList } = useVirtualList(items, {
 
 ---
 
-### [HIGH] 防抖和节流事件处理
+### [HIGH] Debounce and Throttle Event Handlers
 
 ```ts
 import { useDebounceFn } from '@vueuse/core'
@@ -271,19 +271,19 @@ const debouncedSearch = useDebounceFn(async () => {
 
 ## State Management (Pinia)
 
-### [HIGH] 使用 storeToRefs 解构 state
+### [HIGH] Use storeToRefs for Destructuring State
 
 ```ts
 import { storeToRefs } from 'pinia'
 
 const store = useUserStore()
 const { user, isLoggedIn } = storeToRefs(store)
-const { login, logout } = store // actions 直接解构
+const { login, logout } = store // Destructure actions directly
 ```
 
 ---
 
-### [MEDIUM] 使用 $patch 批量更新
+### [MEDIUM] Use $patch for Batch Updates
 
 ```ts
 store.$patch({
@@ -296,27 +296,27 @@ store.$patch({
 
 ## Bundle Optimization
 
-### [HIGH] Tree-shaking 友好的导入
+### [HIGH] Tree-Shaking Friendly Imports
 
-**错误：**
+**Bad:**
 ```ts
 import _ from 'lodash'
 ```
 
-**正确：**
+**Good:**
 ```ts
 import { debounce } from 'lodash-es'
 ```
 
 ---
 
-### [HIGH] 避免全量导入组件库
+### [HIGH] Avoid Full Component Library Imports
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['@element-plus/nuxt']
-  // 自动按需导入
+  // Auto on-demand imports
 })
 ```
 
@@ -324,7 +324,7 @@ export default defineNuxtConfig({
 
 ## Nuxt Specific
 
-### [HIGH] 使用 routeRules 配置缓存
+### [HIGH] Use routeRules for Caching Configuration
 
 ```ts
 export default defineNuxtConfig({
@@ -338,16 +338,16 @@ export default defineNuxtConfig({
 
 ---
 
-### [HIGH] 使用 useState 跨组件共享状态
+### [HIGH] Use useState for Cross-Component State Sharing
 
 ```ts
-// SSR 安全的状态共享
+// SSR-safe state sharing
 const user = useState<User | null>('user', () => null)
 ```
 
 ---
 
-### [HIGH] 使用 definePageMeta 设置页面元数据
+### [HIGH] Use definePageMeta for Page Metadata
 
 ```vue
 <script setup lang="ts">

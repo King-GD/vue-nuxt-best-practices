@@ -1,61 +1,61 @@
 ---
 id: bundle-02
-title: Tree-shaking 友好的导入方式
+title: Tree-Shaking Friendly Import Style
 priority: high
 category: bundle-optimization
 tags: [bundle, tree-shaking, import]
 ---
 
-# Tree-shaking 友好的导入方式
+# Tree-Shaking Friendly Import Style
 
-## 问题
-错误的导入方式会导致整个库被打包。
+## Problem
+Incorrect import styles cause the entire library to be bundled.
 
-## 错误示例
+## Bad Example
 ```ts
-// 错误：导入整个 lodash（~70KB）
+// Bad: Importing entire lodash (~70KB)
 import _ from 'lodash'
 const result = _.debounce(fn, 300)
 
-// 错误：命名空间导入
+// Bad: Namespace import
 import * as utils from './utils'
 console.log(utils.formatDate(date))
 
-// 错误：从 barrel 文件导入
-import { Button } from '@/components'  // 如果 index.ts 导出所有组件
+// Bad: Importing from barrel files
+import { Button } from '@/components'  // If index.ts exports all components
 ```
 
-## 正确示例
+## Good Example
 ```ts
-// 正确：使用 lodash-es 并具名导入
+// Good: Use lodash-es with named imports
 import { debounce } from 'lodash-es'
 const result = debounce(fn, 300)
 
-// 正确：直接导入需要的函数
+// Good: Direct import of needed function
 import debounce from 'lodash-es/debounce'
 
-// 正确：具名导入
+// Good: Named imports
 import { formatDate } from './utils/date'
 
-// 正确：直接从组件文件导入
+// Good: Import directly from component file
 import Button from '@/components/Button.vue'
 ```
 
-## 组件库按需导入
+## On-Demand Component Library Import
 ```ts
-// nuxt.config.ts - Element Plus 自动按需导入
+// nuxt.config.ts - Element Plus auto on-demand import
 export default defineNuxtConfig({
   modules: ['@element-plus/nuxt'],
   elementPlus: {
-    // 按需导入
+    // On-demand import
   }
 })
 
-// 使用时直接用，无需手动导入
-// <el-button>按钮</el-button>
+// Use directly, no manual import needed
+// <el-button>Button</el-button>
 ```
 
-## 检查 tree-shaking 效果
+## Check Tree-Shaking Effect
 ```ts
 // vite.config.ts
 export default {
@@ -63,7 +63,7 @@ export default {
     rollupOptions: {
       output: {
         manualChunks: {
-          // 分析大型依赖
+          // Analyze large dependencies
         }
       }
     }
@@ -71,8 +71,8 @@ export default {
 }
 ```
 
-## 原因
-- ESM 具名导入支持静态分析
-- 构建工具可以移除未使用的导出
-- lodash-es 比 lodash 更适合现代打包
-- 避免 barrel 文件导致的意外打包
+## Why
+- ESM named imports support static analysis
+- Build tools can remove unused exports
+- lodash-es is more suitable for modern bundling than lodash
+- Avoid accidental bundling caused by barrel files

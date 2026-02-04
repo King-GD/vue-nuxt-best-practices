@@ -1,19 +1,19 @@
 ---
 id: component-04
-title: 使用 provide/inject 依赖注入
+title: Use provide/inject for Dependency Injection
 priority: medium
 category: component-design
 tags: [component, provide, inject, dependency-injection]
 ---
 
-# 使用 provide/inject 依赖注入
+# Use provide/inject for Dependency Injection
 
-## 问题
-深层组件间的数据传递通过 props drilling 会导致代码冗余和维护困难。
+## Problem
+Passing data between deeply nested components via props drilling leads to code redundancy and maintenance difficulties.
 
-## 错误示例
+## Bad Example
 ```vue
-<!-- 错误：Props drilling -->
+<!-- Bad: Props drilling -->
 <!-- App.vue -->
 <template>
   <Layout :theme="theme" :user="user" :config="config">
@@ -23,17 +23,17 @@ tags: [component, provide, inject, dependency-injection]
   </Layout>
 </template>
 
-<!-- 中间组件必须透传不使用的 props -->
+<!-- Intermediate components must pass through props they don't use -->
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <!-- App.vue -->
 <script setup lang="ts">
 import { provide } from 'vue'
 import type { InjectionKey } from 'vue'
 
-// 定义注入 key（类型安全）
+// Define injection keys (type-safe)
 export const ThemeKey: InjectionKey<Ref<'light' | 'dark'>> = Symbol('theme')
 export const UserKey: InjectionKey<Ref<User | null>> = Symbol('user')
 
@@ -44,21 +44,21 @@ provide(ThemeKey, theme)
 provide(UserKey, user)
 </script>
 
-<!-- UserPanel.vue（深层子组件） -->
+<!-- UserPanel.vue (deeply nested child component) -->
 <script setup lang="ts">
 import { inject } from 'vue'
 import { ThemeKey, UserKey } from '~/App.vue'
 
-// 类型安全的注入
+// Type-safe injection
 const theme = inject(ThemeKey)!
 const user = inject(UserKey)!
 
-// 带默认值
+// With default value
 const config = inject('config', { debug: false })
 </script>
 ```
 
-## 封装为 Composable
+## Encapsulate as Composable
 ```ts
 // composables/useTheme.ts
 const ThemeKey: InjectionKey<{
@@ -87,23 +87,23 @@ export function useTheme() {
 }
 ```
 
-## 只读注入（防止子组件修改）
+## Readonly Injection (Prevent Child Modification)
 ```vue
 <script setup lang="ts">
 import { provide, readonly } from 'vue'
 
 const state = reactive({ count: 0 })
 
-// 提供只读版本
+// Provide readonly version
 provide('state', readonly(state))
 
-// 提供修改方法
+// Provide modification method
 provide('increment', () => state.count++)
 </script>
 ```
 
-## 原因
-- 避免 props drilling，代码更简洁
-- 解耦组件间的直接依赖
-- 适合主题、用户状态、配置等全局数据
-- 使用 InjectionKey 保证类型安全
+## Why
+- Avoids props drilling, cleaner code
+- Decouples direct dependencies between components
+- Suitable for global data like theme, user state, configuration
+- InjectionKey ensures type safety

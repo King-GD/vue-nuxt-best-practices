@@ -1,54 +1,54 @@
 ---
 id: fetch-06
-title: 正确处理请求错误状态
+title: Handle Request Error States Correctly
 priority: high
 category: data-fetching
 tags: [data-fetching, error-handling, ux]
 ---
 
-# 正确处理请求错误状态
+# Handle Request Error States Correctly
 
-## 问题
-未处理的请求错误会导致页面白屏或用户困惑。
+## Problem
+Unhandled request errors can cause blank pages or confuse users.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：没有处理 error 状态
+// Bad: Not handling error state
 const { data } = await useFetch('/api/users')
 </script>
 
 <template>
-  <!-- 如果请求失败，data 为 null，页面可能报错 -->
-  <div>{{ data.users.length }} 个用户</div>
+  <!-- If request fails, data is null, page may error -->
+  <div>{{ data.users.length }} users</div>
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const { data, pending, error, refresh } = await useFetch('/api/users')
 </script>
 
 <template>
-  <!-- 加载状态 -->
+  <!-- Loading state -->
   <div v-if="pending" class="loading">
     <Spinner />
-    <span>加载中...</span>
+    <span>Loading...</span>
   </div>
 
-  <!-- 错误状态 -->
+  <!-- Error state -->
   <div v-else-if="error" class="error">
-    <p>加载失败: {{ error.message }}</p>
-    <button @click="refresh()">重试</button>
+    <p>Failed to load: {{ error.message }}</p>
+    <button @click="refresh()">Retry</button>
   </div>
 
-  <!-- 空数据状态 -->
+  <!-- Empty data state -->
   <div v-else-if="!data?.users?.length" class="empty">
-    <p>暂无数据</p>
+    <p>No data available</p>
   </div>
 
-  <!-- 正常状态 -->
+  <!-- Normal state -->
   <ul v-else>
     <li v-for="user in data.users" :key="user.id">
       {{ user.name }}
@@ -57,33 +57,33 @@ const { data, pending, error, refresh } = await useFetch('/api/users')
 </template>
 ```
 
-## 使用 onError 回调
+## Using onError Callback
 ```vue
 <script setup lang="ts">
 const { data } = await useFetch('/api/users', {
   onRequestError({ error }) {
-    console.error('请求错误:', error)
+    console.error('Request error:', error)
   },
   onResponseError({ response }) {
     if (response.status === 401) {
       navigateTo('/login')
     } else if (response.status === 404) {
-      throw createError({ statusCode: 404, message: '资源不存在' })
+      throw createError({ statusCode: 404, message: 'Resource not found' })
     }
   }
 })
 </script>
 ```
 
-## 全局错误处理
+## Global Error Handling
 ```ts
 // plugins/fetch-error.ts
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook('app:error', (error) => {
-    console.error('应用错误:', error)
+    console.error('App error:', error)
   })
 
-  // 全局 $fetch 拦截
+  // Global $fetch interceptor
   globalThis.$fetch = $fetch.create({
     onResponseError({ response }) {
       if (response.status === 401) {
@@ -94,8 +94,8 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-## 原因
-- 网络请求可能因各种原因失败
-- 良好的错误处理提升用户体验
-- 提供重试机制让用户可以自行恢复
-- 区分不同错误类型给予适当反馈
+## Why
+- Network requests can fail for various reasons
+- Good error handling improves user experience
+- Providing retry mechanism lets users self-recover
+- Distinguishing error types gives appropriate feedback

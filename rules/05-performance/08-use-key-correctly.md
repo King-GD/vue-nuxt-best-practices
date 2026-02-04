@@ -1,88 +1,88 @@
 ---
 id: perf-08
-title: 正确使用 key 优化列表渲染
+title: Use key Correctly to Optimize List Rendering
 priority: high
 category: performance
 tags: [performance, key, list, diff]
 ---
 
-# 正确使用 key 优化列表渲染
+# Use key Correctly to Optimize List Rendering
 
-## 问题
-错误的 key 会导致不必要的 DOM 操作或状态错乱。
+## Problem
+Incorrect keys cause unnecessary DOM operations or state confusion.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：使用 index 作为 key -->
+  <!-- Bad: Using index as key -->
   <div v-for="(item, index) in items" :key="index">
     <input v-model="item.value" />
   </div>
 
-  <!-- 错误：没有 key -->
+  <!-- Bad: No key -->
   <div v-for="item in items">
     {{ item.name }}
   </div>
 
-  <!-- 错误：非唯一 key -->
+  <!-- Bad: Non-unique key -->
   <div v-for="item in items" :key="item.category">
     {{ item.name }}
   </div>
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- 正确：使用唯一且稳定的 id -->
+  <!-- Correct: Use unique and stable id -->
   <div v-for="item in items" :key="item.id">
     <input v-model="item.value" />
   </div>
 
-  <!-- 复合 key（当单个字段不唯一时） -->
+  <!-- Composite key (when single field isn't unique) -->
   <div v-for="item in items" :key="`${item.type}-${item.id}`">
     {{ item.name }}
   </div>
 
-  <!-- 强制重新创建组件 -->
+  <!-- Force component recreation -->
   <UserProfile :key="userId" :id="userId" />
 </template>
 ```
 
-## 何时可以用 index
+## When index Is Acceptable
 ```vue
 <template>
-  <!-- ✅ 静态列表，不会增删改 -->
+  <!-- ✅ Static list, no add/delete/update -->
   <li v-for="(item, index) in staticMenu" :key="index">
     {{ item.label }}
   </li>
 
-  <!-- ✅ 纯展示，没有状态 -->
+  <!-- ✅ Pure display, no state -->
   <span v-for="(tag, index) in tags" :key="index">
     {{ tag }}
   </span>
 </template>
 ```
 
-## key 的作用
+## Key Usage for State Reset
 ```vue
 <script setup lang="ts">
-// 使用 key 强制重置组件状态
+// Use key to force reset component state
 const formKey = ref(0)
 
 function resetForm() {
-  formKey.value++ // 组件会被销毁重建
+  formKey.value++ // Component will be destroyed and recreated
 }
 </script>
 
 <template>
   <FormComponent :key="formKey" />
-  <button @click="resetForm">重置</button>
+  <button @click="resetForm">Reset</button>
 </template>
 ```
 
-## 原因
-- key 帮助 Vue 识别节点身份
-- 正确的 key 使 diff 算法更高效
-- 错误的 key 导致状态错乱（如输入框内容跑到其他行）
-- 唯一稳定的 key 是最佳实践
+## Why
+- key helps Vue identify node identity
+- Correct keys make diff algorithm more efficient
+- Incorrect keys cause state confusion (e.g., input content jumping to other rows)
+- Unique and stable keys are best practice

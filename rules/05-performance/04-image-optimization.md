@@ -1,33 +1,33 @@
 ---
 id: perf-04
-title: 图片懒加载和优化
+title: Image Lazy Loading and Optimization
 priority: high
 category: performance
 tags: [performance, image, lazy-loading]
 ---
 
-# 图片懒加载和优化
+# Image Lazy Loading and Optimization
 
-## 问题
-首屏加载过多图片会显著延长加载时间，影响 LCP 指标。
+## Problem
+Loading too many images on first paint significantly extends load time and affects LCP metrics.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：所有图片立即加载 -->
+  <!-- Bad: All images load immediately -->
   <div v-for="item in items" :key="item.id">
     <img :src="item.image" :alt="item.name" />
   </div>
 
-  <!-- 错误：没有指定尺寸，导致布局偏移 -->
+  <!-- Bad: No dimensions specified, causes layout shift -->
   <img :src="coverImage" />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- 原生懒加载 -->
+  <!-- Native lazy loading -->
   <img
     :src="item.image"
     :alt="item.name"
@@ -36,7 +36,7 @@ tags: [performance, image, lazy-loading]
     height="200"
   />
 
-  <!-- 使用 NuxtImg（推荐） -->
+  <!-- Using NuxtImg (recommended) -->
   <NuxtImg
     :src="item.image"
     :alt="item.name"
@@ -47,7 +47,7 @@ tags: [performance, image, lazy-loading]
     quality="80"
   />
 
-  <!-- 首屏关键图片不要懒加载 -->
+  <!-- Critical images above fold should not be lazy loaded -->
   <NuxtImg
     :src="heroImage"
     alt="Hero"
@@ -58,7 +58,7 @@ tags: [performance, image, lazy-loading]
 </template>
 ```
 
-## 配置 @nuxt/image
+## Configure @nuxt/image
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
@@ -77,7 +77,7 @@ export default defineNuxtConfig({
 })
 ```
 
-## 响应式图片
+## Responsive Images
 ```vue
 <template>
   <NuxtPicture
@@ -89,7 +89,7 @@ export default defineNuxtConfig({
 </template>
 ```
 
-## 背景图懒加载
+## Background Image Lazy Loading
 ```vue
 <template>
   <div
@@ -99,7 +99,7 @@ export default defineNuxtConfig({
 </template>
 
 <script setup lang="ts">
-// 使用 Intersection Observer
+// Using Intersection Observer
 const vLazyBg = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
     const observer = new IntersectionObserver(([entry]) => {
@@ -114,8 +114,8 @@ const vLazyBg = {
 </script>
 ```
 
-## 原因
-- 懒加载减少首屏请求数量
-- 指定尺寸避免布局偏移（CLS）
-- WebP 格式体积更小
-- @nuxt/image 自动优化和响应式处理
+## Why
+- Lazy loading reduces first paint request count
+- Specifying dimensions avoids layout shift (CLS)
+- WebP format has smaller file size
+- @nuxt/image provides automatic optimization and responsive handling

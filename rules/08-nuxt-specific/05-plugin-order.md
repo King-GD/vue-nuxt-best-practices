@@ -1,33 +1,33 @@
 ---
 id: nuxt-05
-title: 插件加载顺序控制
+title: Plugin Loading Order Control
 priority: medium
 category: nuxt-specific
 tags: [nuxt, plugins, order]
 ---
 
-# 插件加载顺序控制
+# Plugin Loading Order Control
 
-## 问题
-插件之间有依赖关系时，加载顺序不正确会导致错误。
+## Problem
+When plugins have dependencies, incorrect loading order causes errors.
 
-## 插件命名约定
+## Plugin Naming Convention
 ```
 plugins/
-├── 01.init.ts          # 数字前缀控制顺序
+├── 01.init.ts          # Numeric prefix controls order
 ├── 02.auth.ts
 ├── 03.analytics.ts
-├── api.client.ts       # .client 只在客户端加载
-├── seo.server.ts       # .server 只在服务端加载
-└── utils.ts            # 两端都加载
+├── api.client.ts       # .client loads only on client
+├── seo.server.ts       # .server loads only on server
+└── utils.ts            # Loads on both sides
 ```
 
-## 配置加载顺序
+## Configure Loading Order
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   plugins: [
-    // 手动指定顺序
+    // Manually specify order
     '~/plugins/init.ts',
     '~/plugins/auth.ts',
     { src: '~/plugins/analytics.ts', mode: 'client' }
@@ -35,14 +35,14 @@ export default defineNuxtConfig({
 })
 ```
 
-## 插件依赖
+## Plugin Dependencies
 ```ts
 // plugins/api.ts
 export default defineNuxtPlugin({
   name: 'api',
-  dependsOn: ['auth'], // 依赖 auth 插件
+  dependsOn: ['auth'], // Depends on auth plugin
   async setup(nuxtApp) {
-    // auth 插件已加载
+    // auth plugin is loaded
     const token = nuxtApp.$auth?.token
   }
 })
@@ -51,7 +51,7 @@ export default defineNuxtPlugin({
 export default defineNuxtPlugin({
   name: 'auth',
   async setup(nuxtApp) {
-    // 初始化 auth
+    // Initialize auth
     nuxtApp.provide('auth', {
       token: 'xxx'
     })
@@ -59,20 +59,20 @@ export default defineNuxtPlugin({
 })
 ```
 
-## 并行加载
+## Parallel Loading
 ```ts
 // plugins/parallel.ts
 export default defineNuxtPlugin({
   name: 'my-plugin',
-  parallel: true, // 允许并行加载
+  parallel: true, // Allow parallel loading
   async setup(nuxtApp) {
-    // 不依赖其他插件
+    // Does not depend on other plugins
   }
 })
 ```
 
-## 原因
-- 插件默认按文件名顺序加载
-- 数字前缀是简单的排序方式
-- dependsOn 明确声明依赖关系
-- parallel 提升启动性能
+## Why
+- Plugins load in filename order by default
+- Numeric prefix is a simple sorting method
+- dependsOn explicitly declares dependencies
+- parallel improves startup performance

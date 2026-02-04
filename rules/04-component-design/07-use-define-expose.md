@@ -1,17 +1,17 @@
 ---
 id: component-07
-title: 正确使用 defineExpose
+title: Use defineExpose Correctly
 priority: medium
 category: component-design
 tags: [component, expose, ref]
 ---
 
-# 正确使用 defineExpose
+# Use defineExpose Correctly
 
-## 问题
-`<script setup>` 中的变量默认不暴露给父组件，需要显式声明。
+## Problem
+Variables in `<script setup>` are not exposed to parent components by default, requiring explicit declaration.
 
-## 错误示例
+## Bad Example
 ```vue
 <!-- Child.vue -->
 <script setup lang="ts">
@@ -27,7 +27,7 @@ function reset() {
 const childRef = ref()
 
 function handleReset() {
-  // 错误：reset 未暴露，无法调用
+  // Error: reset is not exposed, cannot be called
   childRef.value.reset()
 }
 </script>
@@ -37,7 +37,7 @@ function handleReset() {
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <!-- Child.vue -->
 <script setup lang="ts">
@@ -51,11 +51,11 @@ function validate(): boolean {
   return count.value > 0
 }
 
-// 显式暴露需要的方法和属性
+// Explicitly expose needed methods and properties
 defineExpose({
   reset,
   validate,
-  count: readonly(count) // 暴露只读版本
+  count: readonly(count) // Expose readonly version
 })
 </script>
 
@@ -69,13 +69,13 @@ function handleReset() {
 
 async function handleSubmit() {
   if (childRef.value?.validate()) {
-    // 提交
+    // Submit
   }
 }
 </script>
 ```
 
-## 表单组件暴露
+## Form Component Exposure
 ```vue
 <!-- FormInput.vue -->
 <script setup lang="ts">
@@ -102,9 +102,9 @@ defineExpose({
 </script>
 ```
 
-## 类型安全的组件引用
+## Type-Safe Component References
 ```ts
-// 定义组件暴露的接口
+// Define component exposed interface
 interface FormInputExpose {
   focus: () => void
   blur: () => void
@@ -112,13 +112,13 @@ interface FormInputExpose {
   el: HTMLInputElement | null
 }
 
-// 使用
+// Usage
 const inputRef = ref<FormInputExpose | null>(null)
 inputRef.value?.focus()
 ```
 
-## 原因
-- `<script setup>` 默认是封闭的，保护内部实现
-- 显式 expose 明确组件的公共 API
-- 避免父组件依赖子组件的内部实现
-- 配合 TypeScript 提供类型安全
+## Why
+- `<script setup>` is closed by default, protecting internal implementation
+- Explicit expose clarifies component's public API
+- Prevents parent components from depending on child's internal implementation
+- Combined with TypeScript for type safety

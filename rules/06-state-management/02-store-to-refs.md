@@ -1,82 +1,82 @@
 ---
 id: state-02
-title: 使用 storeToRefs 解构 state
+title: Use storeToRefs for Destructuring State
 priority: high
 category: state-management
 tags: [pinia, storeToRefs, reactivity]
 ---
 
-# 使用 storeToRefs 解构 state
+# Use storeToRefs for Destructuring State
 
-## 问题
-直接解构 store 会丢失响应性。
+## Problem
+Directly destructuring a store loses reactivity.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
 const store = useUserStore()
 
-// 错误：解构后丢失响应性
+// Bad: Destructuring loses reactivity
 const { user, isLoggedIn } = store
 
-// user 和 isLoggedIn 变成了普通值，不会更新
+// user and isLoggedIn become plain values, won't update
 </script>
 
 <template>
-  <!-- 这里的值永远不会更新 -->
+  <!-- These values will never update -->
   <span>{{ user?.name }}</span>
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 
 const store = useUserStore()
 
-// 正确：使用 storeToRefs 保持响应性
+// Correct: Use storeToRefs to maintain reactivity
 const { user, isLoggedIn } = storeToRefs(store)
 
-// actions 不需要 storeToRefs，可以直接解构
+// Actions don't need storeToRefs, can be destructured directly
 const { login, logout } = store
 </script>
 
 <template>
   <span>{{ user?.name }}</span>
-  <button @click="logout">退出</button>
+  <button @click="logout">Logout</button>
 </template>
 ```
 
-## 混合使用
+## Mixed Usage
 ```vue
 <script setup lang="ts">
 const store = useCartStore()
 
-// state 和 getters 用 storeToRefs
+// state and getters use storeToRefs
 const { items, total, isEmpty } = storeToRefs(store)
 
-// actions 直接解构
+// actions destructure directly
 const { addItem, removeItem, clear } = store
 
-// 或者不解构，直接使用 store
+// Or don't destructure, use store directly
 function handleAdd(product: Product) {
   store.addItem(product)
 }
 </script>
 ```
 
-## 为什么不直接用 toRefs
+## Why Not Just Use toRefs
 ```ts
-// storeToRefs 会跳过 actions 和其他非响应式属性
-const { user } = storeToRefs(store) // ✅ 只提取响应式数据
+// storeToRefs skips actions and other non-reactive properties
+const { user } = storeToRefs(store) // ✅ Only extracts reactive data
 
-// toRefs 会尝试转换所有属性
-const { user, login } = toRefs(store) // ❌ login 是函数，会有问题
+// toRefs tries to convert all properties
+const { user, login } = toRefs(store) // ❌ login is a function, will have issues
 ```
 
-## 原因
-- Pinia store 的 state 是 reactive 对象
-- 直接解构会丢失响应式链接
-- storeToRefs 专门处理 Pinia store
-- actions 是普通函数，可以直接解构
+## Why
+- Pinia store's state is a reactive object
+- Direct destructuring loses the reactive link
+- storeToRefs is specifically designed for Pinia stores
+- Actions are plain functions, can be destructured directly

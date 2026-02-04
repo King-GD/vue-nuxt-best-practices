@@ -1,20 +1,20 @@
 ---
 id: state-01
-title: Pinia Store 模块化设计
+title: Modular Pinia Store Design
 priority: high
 category: state-management
 tags: [pinia, store, modular]
 ---
 
-# Pinia Store 模块化设计
+# Modular Pinia Store Design
 
-## 问题
-单一巨大的 store 难以维护，且影响代码分割。
+## Problem
+A single massive store is difficult to maintain and affects code splitting.
 
-## 错误示例
+## Bad Example
 ```ts
 // stores/index.ts
-// 错误：所有状态放在一个 store
+// Bad: All state in one store
 export const useMainStore = defineStore('main', {
   state: () => ({
     user: null,
@@ -23,15 +23,15 @@ export const useMainStore = defineStore('main', {
     orders: [],
     settings: {},
     notifications: [],
-    // ... 更多状态
+    // ... more state
   }),
   actions: {
-    // 数百行 actions...
+    // Hundreds of lines of actions...
   }
 })
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // stores/user.ts
 export const useUserStore = defineStore('user', () => {
@@ -67,7 +67,7 @@ export const useCartStore = defineStore('cart', () => {
 })
 ```
 
-## Store 组合
+## Store Composition
 ```ts
 // stores/checkout.ts
 export const useCheckoutStore = defineStore('checkout', () => {
@@ -94,8 +94,8 @@ export const useCheckoutStore = defineStore('checkout', () => {
 })
 ```
 
-## 原因
-- 模块化 store 更易维护和测试
-- 支持代码分割，按需加载
-- 关注点分离，职责清晰
-- 便于团队协作
+## Why
+- Modular stores are easier to maintain and test
+- Supports code splitting, load on demand
+- Separation of concerns, clear responsibilities
+- Facilitates team collaboration

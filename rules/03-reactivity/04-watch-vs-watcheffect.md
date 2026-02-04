@@ -1,40 +1,40 @@
 ---
 id: reactivity-04
-title: 正确选择 watch vs watchEffect
+title: Choose Correctly Between watch and watchEffect
 priority: medium
 category: reactivity
 tags: [reactivity, watch, watchEffect]
 ---
 
-# 正确选择 watch vs watchEffect
+# Choose Correctly Between watch and watchEffect
 
-## 问题
-选择错误的监听方式会导致不必要的执行或遗漏依赖。
+## Problem
+Choosing the wrong watcher causes unnecessary executions or missed dependencies.
 
-## watch 适用场景
+## When to Use watch
 ```vue
 <script setup lang="ts">
 const searchQuery = ref('')
 const userId = ref(1)
 
-// 1. 需要访问旧值
+// 1. Need access to old value
 watch(searchQuery, (newVal, oldVal) => {
-  console.log(`从 "${oldVal}" 变为 "${newVal}"`)
+  console.log(`Changed from "${oldVal}" to "${newVal}"`)
 })
 
-// 2. 需要惰性执行（默认不立即执行）
+// 2. Need lazy execution (doesn't run immediately by default)
 watch(userId, async (id) => {
   userData.value = await fetchUser(id)
 })
 
-// 3. 监听特定的响应式源
+// 3. Watch specific reactive source
 watch(
   () => route.params.id,
   (id) => fetchData(id),
   { immediate: true }
 )
 
-// 4. 监听多个源
+// 4. Watch multiple sources
 watch(
   [firstName, lastName],
   ([first, last], [prevFirst, prevLast]) => {
@@ -44,24 +44,24 @@ watch(
 </script>
 ```
 
-## watchEffect 适用场景
+## When to Use watchEffect
 ```vue
 <script setup lang="ts">
 const count = ref(0)
 const multiplier = ref(2)
 
-// 1. 自动追踪所有依赖
+// 1. Auto-track all dependencies
 watchEffect(() => {
-  // 自动追踪 count 和 multiplier
+  // Automatically tracks count and multiplier
   console.log(`${count.value} * ${multiplier.value} = ${count.value * multiplier.value}`)
 })
 
-// 2. 需要立即执行
+// 2. Need immediate execution
 watchEffect(() => {
   document.title = `Count: ${count.value}`
 })
 
-// 3. 带清理的副作用
+// 3. Side effects with cleanup
 watchEffect((onCleanup) => {
   const controller = new AbortController()
 
@@ -74,32 +74,32 @@ watchEffect((onCleanup) => {
 </script>
 ```
 
-## 对比表
-| 特性 | watch | watchEffect |
-|------|-------|-------------|
-| 依赖追踪 | 显式声明 | 自动追踪 |
-| 立即执行 | 默认否 | 默认是 |
-| 访问旧值 | ✅ | ❌ |
-| 精确控制 | ✅ | ❌ |
-| 代码简洁 | ❌ | ✅ |
+## Comparison Table
+| Feature | watch | watchEffect |
+|---------|-------|-------------|
+| Dependency tracking | Explicit declaration | Auto-tracking |
+| Immediate execution | Default no | Default yes |
+| Access old value | ✅ | ❌ |
+| Precise control | ✅ | ❌ |
+| Code brevity | ❌ | ✅ |
 
-## 避免常见错误
+## Avoid Common Mistakes
 ```vue
 <script setup lang="ts">
-// 错误：在 watch 回调中修改监听的源
+// Bad: Modifying watched source in watch callback
 watch(count, (val) => {
-  count.value = val + 1 // 无限循环！
+  count.value = val + 1 // Infinite loop!
 })
 
-// 错误：watchEffect 中有条件访问
+// Bad: Conditional access in watchEffect
 watchEffect(() => {
   if (showDetails.value) {
-    // details.value 只在条件为 true 时被追踪
+    // details.value only tracked when condition is true
     console.log(details.value)
   }
 })
 
-// 正确：确保所有依赖都被追踪
+// Correct: Ensure all dependencies are tracked
 watchEffect(() => {
   const shouldShow = showDetails.value
   const detailData = details.value
@@ -110,7 +110,7 @@ watchEffect(() => {
 </script>
 ```
 
-## 原因
-- `watch` 适合需要精确控制或访问旧值的场景
-- `watchEffect` 适合需要立即执行且依赖复杂的场景
-- 错误选择会导致性能问题或逻辑错误
+## Why
+- `watch` is suitable when needing precise control or access to old values
+- `watchEffect` is suitable when needing immediate execution with complex dependencies
+- Wrong choice leads to performance issues or logic errors

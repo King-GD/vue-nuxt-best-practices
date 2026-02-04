@@ -1,20 +1,20 @@
 ---
 id: perf-03
-title: 大列表使用虚拟滚动
+title: Use Virtual Scrolling for Large Lists
 priority: critical
 category: performance
 tags: [performance, virtual-scroll, list]
 ---
 
-# 大列表使用虚拟滚动
+# Use Virtual Scrolling for Large Lists
 
-## 问题
-渲染大量 DOM 节点会导致页面卡顿和内存占用过高。
+## Problem
+Rendering large numbers of DOM nodes causes page lag and high memory usage.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：渲染 10000 个 DOM 节点 -->
+  <!-- Bad: Rendering 10000 DOM nodes -->
   <div class="list">
     <div v-for="item in items" :key="item.id" class="item">
       {{ item.name }}
@@ -23,7 +23,7 @@ tags: [performance, virtual-scroll, list]
 </template>
 
 <script setup lang="ts">
-// 10000 条数据
+// 10000 items
 const items = ref<Item[]>(Array.from({ length: 10000 }, (_, i) => ({
   id: i,
   name: `Item ${i}`
@@ -31,7 +31,7 @@ const items = ref<Item[]>(Array.from({ length: 10000 }, (_, i) => ({
 </script>
 ```
 
-## 正确示例（使用 VueUse）
+## Good Example (Using VueUse)
 ```vue
 <template>
   <div ref="containerRef" class="list-container" style="height: 400px; overflow-y: auto;">
@@ -69,7 +69,7 @@ const totalHeight = computed(() => items.value.length * itemHeight)
 </script>
 ```
 
-## 使用第三方虚拟滚动库
+## Using Third-Party Virtual Scroll Libraries
 ```vue
 <template>
   <!-- vue-virtual-scroller -->
@@ -91,16 +91,16 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 </script>
 ```
 
-## 何时使用虚拟滚动
-| 数据量 | 建议 |
-|--------|------|
-| < 100 | 普通渲染 |
-| 100-500 | 考虑分页或虚拟滚动 |
-| > 500 | 强烈建议虚拟滚动 |
-| > 1000 | 必须虚拟滚动 |
+## When to Use Virtual Scrolling
+| Data Size | Recommendation |
+|-----------|----------------|
+| < 100 | Normal rendering |
+| 100-500 | Consider pagination or virtual scrolling |
+| > 500 | Strongly recommend virtual scrolling |
+| > 1000 | Must use virtual scrolling |
 
-## 原因
-- 虚拟滚动只渲染可视区域的 DOM
-- 10000 条数据可能只需要渲染 20 个 DOM 节点
-- 大幅减少内存占用和渲染时间
-- 保持滚动流畅度
+## Why
+- Virtual scrolling only renders DOM in visible area
+- 10000 items might only need 20 DOM nodes
+- Significantly reduces memory usage and render time
+- Maintains smooth scrolling

@@ -1,81 +1,81 @@
 ---
 id: ssr-07
-title: 使用 useRequestHeaders 获取请求信息
+title: Use useRequestHeaders for Request Information
 priority: medium
 category: ssr-hydration
 tags: [ssr, headers, cookies]
 ---
 
-# 使用 useRequestHeaders 获取请求信息
+# Use useRequestHeaders for Request Information
 
-## 问题
-在 SSR 阶段需要访问请求头（如 cookies、user-agent）时，不能直接使用浏览器 API。
+## Problem
+When accessing request headers (like cookies, user-agent) during SSR, you cannot directly use browser APIs.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：服务端没有 document.cookie
+// Bad: document.cookie doesn't exist on server
 const token = document.cookie.split('token=')[1]
 
-// 错误：服务端没有 navigator
+// Bad: navigator doesn't exist on server
 const isMobile = navigator.userAgent.includes('Mobile')
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 使用 Nuxt 提供的 composable
+// Use Nuxt-provided composable
 const headers = useRequestHeaders(['cookie', 'user-agent'])
 
-// 获取 cookie
+// Get cookie
 const cookies = headers.cookie || ''
 const token = useCookie('token')
 
-// 获取 User-Agent
+// Get User-Agent
 const userAgent = headers['user-agent'] || ''
 const isMobile = computed(() => /Mobile/i.test(userAgent))
 
-// 客户端补充
+// Client-side supplement
 onMounted(() => {
-  // 客户端可以获取更多信息
+  // Client can get more information
   if (!userAgent) {
-    // 使用浏览器 API
+    // Use browser API
   }
 })
 </script>
 ```
 
-## 使用 useCookie
+## Using useCookie
 ```vue
 <script setup lang="ts">
-// Nuxt 内置，SSR 友好的 cookie 操作
+// Nuxt built-in, SSR-friendly cookie operations
 const token = useCookie('auth-token')
 const theme = useCookie('theme', { default: () => 'light' })
 
-// 设置 cookie
+// Set cookie
 token.value = 'new-token'
 
-// 配置选项
+// Configuration options
 const session = useCookie('session', {
-  maxAge: 60 * 60 * 24 * 7, // 7 天
+  maxAge: 60 * 60 * 24 * 7, // 7 days
   secure: true,
   httpOnly: false
 })
 </script>
 ```
 
-## 获取请求 URL
+## Getting Request URL
 ```vue
 <script setup lang="ts">
-// 获取当前请求的 URL 信息
+// Get current request URL information
 const requestURL = useRequestURL()
 console.log(requestURL.pathname)
 console.log(requestURL.searchParams.get('id'))
 </script>
 ```
 
-## 原因
-- `useRequestHeaders` 在服务端返回真实请求头，客户端返回空对象
-- `useCookie` 统一处理服务端和客户端的 cookie 操作
-- 避免 hydration mismatch
+## Why
+- `useRequestHeaders` returns real request headers on server, empty object on client
+- `useCookie` handles server and client cookie operations uniformly
+- Avoids hydration mismatch

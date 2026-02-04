@@ -1,79 +1,79 @@
 ---
 id: reactivity-01
-title: 使用 shallowRef 处理大对象
+title: Use shallowRef for Large Objects
 priority: high
 category: reactivity
 tags: [reactivity, performance, shallowRef]
 ---
 
-# 使用 shallowRef 处理大对象
+# Use shallowRef for Large Objects
 
-## 问题
-`ref` 会深度响应式转换对象，对于大型数据结构会造成性能开销。
+## Problem
+`ref` deeply converts objects to reactive, causing performance overhead for large data structures.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：大数组使用 ref，每个元素都被转换为响应式
+// Bad: Large array with ref, every element is converted to reactive
 const tableData = ref<User[]>([])
 
-// 从 API 获取 1000+ 条数据
+// Fetching 1000+ records from API
 const { data } = await useFetch('/api/users')
-tableData.value = data.value // 每个 user 对象都变成响应式
+tableData.value = data.value // Every user object becomes reactive
 
-// 错误：复杂嵌套对象
+// Bad: Complex nested object
 const chartData = ref({
-  datasets: [/* 大量数据点 */],
+  datasets: [/* large amount of data points */],
   labels: [/* ... */]
 })
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 正确：使用 shallowRef，只有 .value 是响应式
+// Correct: Using shallowRef, only .value is reactive
 const tableData = shallowRef<User[]>([])
 
-// 更新时需要替换整个数组
+// Need to replace the entire array when updating
 function updateData(newData: User[]) {
-  tableData.value = newData // 触发更新
+  tableData.value = newData // Triggers update
 }
 
-// 修改单个元素后手动触发
+// Manually trigger after modifying single element
 function updateItem(index: number, newItem: User) {
   tableData.value[index] = newItem
-  triggerRef(tableData) // 手动触发更新
+  triggerRef(tableData) // Manually trigger update
 }
 </script>
 ```
 
-## 适用场景
+## Use Cases
 ```vue
 <script setup lang="ts">
-// 图表数据：通常整体替换
+// Chart data: Usually replaced entirely
 const chartData = shallowRef(null)
 
-// 表格数据：大量行数据
+// Table data: Large number of rows
 const rows = shallowRef<Row[]>([])
 
-// 地图标记：大量坐标点
+// Map markers: Large number of coordinates
 const markers = shallowRef<Marker[]>([])
 
-// 第三方库实例
+// Third-party library instances
 const editorInstance = shallowRef<Editor | null>(null)
 </script>
 ```
 
-## shallowRef vs ref 性能对比
-| 数据量 | ref 初始化 | shallowRef 初始化 |
-|--------|-----------|------------------|
-| 100 条 | ~2ms | ~0.1ms |
-| 1000 条 | ~20ms | ~0.2ms |
-| 10000 条 | ~200ms | ~0.5ms |
+## shallowRef vs ref Performance Comparison
+| Data Size | ref Initialization | shallowRef Initialization |
+|-----------|-------------------|--------------------------|
+| 100 items | ~2ms | ~0.1ms |
+| 1000 items | ~20ms | ~0.2ms |
+| 10000 items | ~200ms | ~0.5ms |
 
-## 原因
-- `ref` 递归转换所有嵌套属性为响应式 Proxy
-- `shallowRef` 只有顶层 `.value` 是响应式
-- 对于只需要整体替换的数据，浅响应式足够
-- 显著减少内存占用和初始化时间
+## Why
+- `ref` recursively converts all nested properties to reactive Proxy
+- `shallowRef` only makes top-level `.value` reactive
+- For data that only needs wholesale replacement, shallow reactivity is sufficient
+- Significantly reduces memory usage and initialization time

@@ -1,35 +1,35 @@
 ---
 id: perf-07
-title: 防抖和节流事件处理
+title: Debounce and Throttle Event Handlers
 priority: high
 category: performance
 tags: [performance, debounce, throttle]
 ---
 
-# 防抖和节流事件处理
+# Debounce and Throttle Event Handlers
 
-## 问题
-高频事件（如 scroll、resize、input）会触发大量回调，影响性能。
+## Problem
+High-frequency events (like scroll, resize, input) trigger many callbacks, affecting performance.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：每次输入都发起请求 -->
+  <!-- Bad: Every input triggers a request -->
   <input v-model="query" @input="search" />
 
-  <!-- 错误：scroll 事件高频触发 -->
+  <!-- Bad: Scroll event fires frequently -->
   <div @scroll="handleScroll">...</div>
 </template>
 
 <script setup lang="ts">
 async function search() {
-  // 每次按键都请求 API
+  // API request on every keystroke
   results.value = await $fetch(`/api/search?q=${query.value}`)
 }
 </script>
 ```
 
-## 正确示例（使用 VueUse）
+## Good Example (Using VueUse)
 ```vue
 <script setup lang="ts">
 import { useDebounceFn, useThrottleFn, watchDebounced } from '@vueuse/core'
@@ -37,12 +37,12 @@ import { useDebounceFn, useThrottleFn, watchDebounced } from '@vueuse/core'
 const query = ref('')
 const results = ref([])
 
-// 防抖搜索：停止输入 300ms 后执行
+// Debounced search: Execute 300ms after input stops
 const debouncedSearch = useDebounceFn(async () => {
   results.value = await $fetch(`/api/search?q=${query.value}`)
 }, 300)
 
-// 或使用 watchDebounced
+// Or use watchDebounced
 watchDebounced(
   query,
   async (value) => {
@@ -51,9 +51,9 @@ watchDebounced(
   { debounce: 300 }
 )
 
-// 节流滚动：最多每 100ms 执行一次
+// Throttled scroll: Execute at most once per 100ms
 const throttledScroll = useThrottleFn((e: Event) => {
-  // 处理滚动逻辑
+  // Handle scroll logic
 }, 100)
 </script>
 
@@ -63,15 +63,15 @@ const throttledScroll = useThrottleFn((e: Event) => {
 </template>
 ```
 
-## 防抖 vs 节流
-| 场景 | 推荐 | 原因 |
-|------|------|------|
-| 搜索输入 | 防抖 | 等用户停止输入再请求 |
-| 窗口 resize | 防抖 | resize 结束后调整布局 |
-| 滚动加载 | 节流 | 滚动过程中持续检测 |
-| 按钮点击 | 节流 | 防止重复提交 |
+## Debounce vs Throttle
+| Scenario | Recommended | Reason |
+|----------|-------------|--------|
+| Search input | Debounce | Wait until user stops typing |
+| Window resize | Debounce | Adjust layout after resize ends |
+| Scroll loading | Throttle | Continuously check during scroll |
+| Button click | Throttle | Prevent duplicate submissions |
 
-## 使用 lodash-es
+## Using lodash-es
 ```vue
 <script setup lang="ts">
 import { debounce, throttle } from 'lodash-es'
@@ -80,15 +80,15 @@ const debouncedFn = debounce(() => {
   // ...
 }, 300)
 
-// 组件卸载时取消
+// Cancel on component unmount
 onUnmounted(() => {
   debouncedFn.cancel()
 })
 </script>
 ```
 
-## 原因
-- 减少不必要的函数调用
-- 降低 API 请求频率
-- 提升滚动等交互流畅度
-- 节省计算和网络资源
+## Why
+- Reduces unnecessary function calls
+- Lowers API request frequency
+- Improves scroll and interaction fluidity
+- Saves computation and network resources

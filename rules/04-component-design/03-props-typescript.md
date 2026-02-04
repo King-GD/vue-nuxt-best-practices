@@ -1,20 +1,20 @@
 ---
 id: component-03
-title: Props 使用 TypeScript 类型定义
+title: Use TypeScript for Props Definition
 priority: high
 category: component-design
 tags: [component, props, typescript]
 ---
 
-# Props 使用 TypeScript 类型定义
+# Use TypeScript for Props Definition
 
-## 问题
-运行时 props 定义缺乏类型安全，容易出错且 IDE 支持差。
+## Problem
+Runtime props definitions lack type safety, are error-prone, and have poor IDE support.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：运行时定义，类型不够精确
+// Bad: Runtime definition, types not precise enough
 const props = defineProps({
   id: Number,
   name: String,
@@ -22,17 +22,17 @@ const props = defineProps({
   config: Object
 })
 
-// 错误：使用 any
+// Bad: Using any
 const props = defineProps<{
   data: any
 }>()
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 正确：使用接口定义精确类型
+// Correct: Use interface for precise types
 interface User {
   id: number
   name: string
@@ -48,29 +48,29 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 带默认值
+// With defaults
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
   size: 'medium',
-  items: () => []  // 引用类型需要工厂函数
+  items: () => []  // Reference types need factory function
 })
 </script>
 ```
 
-## 复杂类型定义
+## Complex Type Definitions
 ```vue
 <script setup lang="ts">
-// 泛型组件
+// Generic components
 interface Props<T> {
   items: T[]
   selected?: T
   renderItem?: (item: T) => string
 }
 
-// Vue 3.3+ 支持泛型组件
+// Vue 3.3+ supports generic components
 const props = defineProps<Props<T>>()
 
-// 事件类型定义
+// Event type definitions
 interface Emits {
   (e: 'update:modelValue', value: string): void
   (e: 'submit', data: FormData): void
@@ -79,7 +79,7 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-// 或使用简化语法
+// Or use simplified syntax
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   submit: [data: FormData]
@@ -88,7 +88,7 @@ const emit = defineEmits<{
 </script>
 ```
 
-## 提取可复用类型
+## Extract Reusable Types
 ```ts
 // types/components.ts
 export interface ButtonProps {
@@ -107,8 +107,8 @@ export interface TableColumn<T> {
 }
 ```
 
-## 原因
-- TypeScript 类型在编译时检查，运行时零开销
-- IDE 自动补全和错误提示
-- 重构时自动发现类型不匹配
-- 代码更清晰，文档化更好
+## Why
+- TypeScript types are checked at compile time, zero runtime overhead
+- IDE autocomplete and error hints
+- Automatically detect type mismatches during refactoring
+- Cleaner code, better documentation

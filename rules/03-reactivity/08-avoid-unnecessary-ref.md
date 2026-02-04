@@ -1,84 +1,84 @@
 ---
 id: reactivity-08
-title: 避免不必要的 ref 包装
+title: Avoid Unnecessary ref Wrapping
 priority: medium
 category: reactivity
 tags: [reactivity, ref, performance]
 ---
 
-# 避免不必要的 ref 包装
+# Avoid Unnecessary ref Wrapping
 
-## 问题
-过度使用 ref 会增加内存开销和代码复杂度。
+## Problem
+Overusing ref increases memory overhead and code complexity.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：常量不需要响应式
+// Bad: Constants don't need reactivity
 const API_URL = ref('https://api.example.com')
 const MAX_ITEMS = ref(100)
 
-// 错误：只用于计算的中间值
+// Bad: Intermediate values only used for calculation
 const tempValue = ref(0)
 const result = computed(() => {
   tempValue.value = someCalculation()
   return tempValue.value * 2
 })
 
-// 错误：从不修改的数据
+// Bad: Data that's never modified
 const config = ref({
   theme: 'dark',
-  language: 'zh'
+  language: 'en'
 })
-// config 从未被重新赋值
+// config is never reassigned
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 常量直接使用普通变量
+// Constants use plain variables directly
 const API_URL = 'https://api.example.com'
 const MAX_ITEMS = 100
 
-// 计算值使用 computed
+// Calculated values use computed
 const result = computed(() => someCalculation() * 2)
 
-// 不变的配置使用 readonly 或普通对象
+// Immutable config uses readonly or plain object
 const config = {
   theme: 'dark',
-  language: 'zh'
+  language: 'en'
 } as const
 
-// 只有需要响应式更新的才用 ref
+// Only use ref for data that needs reactive updates
 const count = ref(0)
 const userInput = ref('')
 const isLoading = ref(false)
 </script>
 ```
 
-## 何时使用 ref
+## When to Use ref
 ```vue
 <script setup lang="ts">
-// ✅ 用户交互会改变的状态
+// ✅ State that changes via user interaction
 const isOpen = ref(false)
 const selectedId = ref<number | null>(null)
 
-// ✅ 异步数据
+// ✅ Async data
 const users = ref<User[]>([])
 
-// ✅ 表单输入
+// ✅ Form inputs
 const formData = ref({
   name: '',
   email: ''
 })
 
-// ✅ 需要在模板中响应变化
+// ✅ Needs to respond to changes in template
 const message = ref('Hello')
 </script>
 ```
 
-## 使用 readonly 保护数据
+## Using readonly to Protect Data
 ```vue
 <script setup lang="ts">
 const state = reactive({
@@ -86,16 +86,16 @@ const state = reactive({
   items: []
 })
 
-// 暴露只读版本给子组件
+// Expose readonly version to child components
 const readonlyState = readonly(state)
 
-// 子组件无法修改
+// Child components cannot modify
 provide('state', readonlyState)
 </script>
 ```
 
-## 原因
-- 每个 ref 都有额外的内存开销（Proxy 包装）
-- 不必要的响应式包装增加代码复杂度
-- 常量和配置不需要响应式追踪
-- 正确区分静态数据和动态状态
+## Why
+- Every ref has additional memory overhead (Proxy wrapping)
+- Unnecessary reactive wrapping increases code complexity
+- Constants and config don't need reactive tracking
+- Correctly distinguish between static data and dynamic state

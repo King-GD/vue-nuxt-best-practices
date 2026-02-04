@@ -1,41 +1,41 @@
 ---
 id: state-04
-title: 避免在 Store 中存储非序列化数据
+title: Avoid Storing Non-Serializable Data in Store
 priority: medium
 category: state-management
 tags: [pinia, serialization, ssr]
 ---
 
-# 避免在 Store 中存储非序列化数据
+# Avoid Storing Non-Serializable Data in Store
 
-## 问题
-非序列化数据（如函数、DOM 元素、类实例）会导致 SSR 和持久化问题。
+## Problem
+Non-serializable data (like functions, DOM elements, class instances) causes SSR and persistence issues.
 
-## 错误示例
+## Bad Example
 ```ts
 // stores/editor.ts
 export const useEditorStore = defineStore('editor', () => {
-  // 错误：存储 DOM 元素
+  // Bad: Storing DOM element
   const editorElement = ref<HTMLElement | null>(null)
 
-  // 错误：存储类实例
+  // Bad: Storing class instance
   const editorInstance = ref<EditorClass | null>(null)
 
-  // 错误：存储函数
+  // Bad: Storing function
   const onChange = ref<(() => void) | null>(null)
 
-  // 错误：存储 Map/Set
+  // Bad: Storing Map/Set
   const cache = ref(new Map())
 
   return { editorElement, editorInstance, onChange, cache }
 })
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // stores/editor.ts
 export const useEditorStore = defineStore('editor', () => {
-  // 正确：只存储可序列化的状态
+  // Correct: Only store serializable state
   const content = ref('')
   const isReady = ref(false)
   const config = ref<EditorConfig>({
@@ -47,7 +47,7 @@ export const useEditorStore = defineStore('editor', () => {
 })
 
 // composables/useEditor.ts
-// 非序列化对象放在 composable 中
+// Non-serializable objects go in composable
 export function useEditor() {
   const store = useEditorStore()
   const editorRef = ref<HTMLElement | null>(null)
@@ -66,7 +66,7 @@ export function useEditor() {
 }
 ```
 
-## 使用 skipHydrate 标记
+## Using skipHydrate Marker
 ```ts
 import { skipHydrate } from 'pinia'
 
@@ -74,14 +74,14 @@ export const useStore = defineStore('store', () => {
   const cache = ref(new Map())
 
   return {
-    // 标记此属性跳过 SSR hydration
+    // Mark this property to skip SSR hydration
     cache: skipHydrate(cache)
   }
 })
 ```
 
-## 原因
-- SSR 时 state 需要序列化传递给客户端
-- 非序列化数据无法通过 JSON.stringify
-- 持久化插件（如 pinia-plugin-persistedstate）需要序列化
-- 分离关注点：状态 vs 运行时对象
+## Why
+- State needs to be serialized for SSR transfer to client
+- Non-serializable data cannot go through JSON.stringify
+- Persistence plugins (like pinia-plugin-persistedstate) require serialization
+- Separation of concerns: state vs runtime objects

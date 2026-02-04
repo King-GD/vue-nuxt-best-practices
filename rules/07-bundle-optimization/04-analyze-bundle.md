@@ -1,43 +1,43 @@
 ---
 id: bundle-04
-title: 使用 nuxi analyze 分析 bundle
+title: Use nuxi analyze to Analyze Bundle
 priority: medium
 category: bundle-optimization
 tags: [bundle, analyze, optimization]
 ---
 
-# 使用 nuxi analyze 分析 bundle
+# Use nuxi analyze to Analyze Bundle
 
-## 问题
-不了解 bundle 构成就无法有效优化。
+## Problem
+You cannot optimize effectively without understanding the bundle composition.
 
-## 使用方法
+## Usage
 ```bash
-# 生成 bundle 分析报告
+# Generate bundle analysis report
 npx nuxi analyze
 
-# 会打开一个可视化页面显示：
-# - 各模块大小
-# - 依赖关系
-# - 重复打包的库
+# Opens a visualization page showing:
+# - Size of each module
+# - Dependency relationships
+# - Duplicate bundled libraries
 ```
 
-## 分析要点
+## Analysis Focus Points
 ```
-1. 识别大型依赖
-   - 查找超过 100KB 的包
-   - 考虑是否可以替换或懒加载
+1. Identify Large Dependencies
+   - Look for packages over 100KB
+   - Consider if they can be replaced or lazy-loaded
 
-2. 发现重复依赖
-   - 同一个库被打包多次
-   - 不同版本的同一个库
+2. Discover Duplicate Dependencies
+   - Same library bundled multiple times
+   - Different versions of the same library
 
-3. 检查 vendor chunk
-   - node_modules 占比
-   - 是否有不必要的包
+3. Check Vendor Chunk
+   - node_modules proportion
+   - Are there unnecessary packages
 ```
 
-## 配置手动分块
+## Configure Manual Chunking
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
@@ -46,7 +46,7 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           manualChunks: {
-            // 将大型库单独打包
+            // Bundle large libraries separately
             'echarts': ['echarts', 'echarts/core'],
             'element-plus': ['element-plus'],
             'vendor': ['lodash-es', 'dayjs', 'axios']
@@ -58,21 +58,21 @@ export default defineNuxtConfig({
 })
 ```
 
-## 监控 bundle 大小
+## Monitor Bundle Size
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   vite: {
     build: {
-      // 超过阈值时警告
+      // Warn when threshold exceeded
       chunkSizeWarningLimit: 500 // KB
     }
   }
 })
 ```
 
-## 原因
-- 了解 bundle 构成才能针对性优化
-- 发现意外打包的大型依赖
-- 指导代码分割策略
-- 持续监控防止 bundle 膨胀
+## Why
+- Understanding bundle composition enables targeted optimization
+- Discover unexpectedly bundled large dependencies
+- Guide code splitting strategy
+- Continuous monitoring prevents bundle bloat

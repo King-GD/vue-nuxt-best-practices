@@ -1,52 +1,52 @@
 ---
 id: reactivity-05
-title: 避免在 watch 中修改源数据
+title: Avoid Modifying Source Data in watch
 priority: high
 category: reactivity
 tags: [reactivity, watch, infinite-loop]
 ---
 
-# 避免在 watch 中修改源数据
+# Avoid Modifying Source Data in watch
 
-## 问题
-在 watch 回调中修改被监听的数据会导致无限循环。
+## Problem
+Modifying watched data in watch callback causes infinite loops.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
 const count = ref(0)
 
-// 错误：无限循环！
+// Bad: Infinite loop!
 watch(count, (val) => {
   count.value = val + 1
 })
 
-// 错误：间接修改也会循环
+// Bad: Indirect modification also loops
 const items = ref<string[]>([])
 watch(items, (val) => {
-  items.value = [...val, 'new item'] // 无限循环
+  items.value = [...val, 'new item'] // Infinite loop
 }, { deep: true })
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const count = ref(0)
 const doubledCount = ref(0)
 
-// 正确：修改其他响应式数据
+// Correct: Modify other reactive data
 watch(count, (val) => {
   doubledCount.value = val * 2
 })
 
-// 或使用 computed
+// Or use computed
 const doubled = computed(() => count.value * 2)
 
-// 正确：条件修改，避免循环
+// Correct: Conditional modification, avoids loop
 const input = ref('')
 watch(input, (val) => {
-  // 只在特定条件下修改，且修改后不会再触发
+  // Only modify under specific conditions, and modification won't retrigger
   if (val.includes('  ')) {
     input.value = val.replace(/  +/g, ' ')
   }
@@ -54,7 +54,7 @@ watch(input, (val) => {
 </script>
 ```
 
-## 使用 watchEffect 的清理函数
+## Using watchEffect Cleanup Function
 ```vue
 <script setup lang="ts">
 const searchQuery = ref('')
@@ -72,7 +72,7 @@ watchEffect((onCleanup) => {
   fetch(`/api/search?q=${query}`, { signal: controller.signal })
     .then(res => res.json())
     .then(data => {
-      results.value = data // 修改其他数据，不是源数据
+      results.value = data // Modifying other data, not source data
     })
 
   onCleanup(() => controller.abort())
@@ -80,27 +80,27 @@ watchEffect((onCleanup) => {
 </script>
 ```
 
-## 使用 flush 控制时机
+## Using flush to Control Timing
 ```vue
 <script setup lang="ts">
 const data = ref(null)
 
-// flush: 'post' - DOM 更新后执行
+// flush: 'post' - Execute after DOM update
 watch(data, () => {
-  // 可以安全访问更新后的 DOM
+  // Can safely access updated DOM
   nextTick(() => {
     scrollToBottom()
   })
 }, { flush: 'post' })
 
-// flush: 'sync' - 同步执行（谨慎使用）
+// flush: 'sync' - Execute synchronously (use with caution)
 watch(urgent, () => {
-  // 立即同步执行
+  // Execute immediately synchronously
 }, { flush: 'sync' })
 </script>
 ```
 
-## 原因
-- watch 回调修改源数据会再次触发 watch
-- 形成 watch → 修改 → watch 的无限循环
-- 正确做法是修改其他数据或使用条件判断
+## Why
+- Modifying source data in watch callback triggers watch again
+- Forms an infinite loop: watch → modify → watch
+- Correct approach is modifying other data or using conditional checks

@@ -1,75 +1,75 @@
 ---
 id: component-02
-title: 正确使用 v-if vs v-show
+title: Use v-if vs v-show Correctly
 priority: high
 category: component-design
 tags: [component, v-if, v-show, performance]
 ---
 
-# 正确使用 v-if vs v-show
+# Use v-if vs v-show Correctly
 
-## 问题
-错误选择条件渲染指令会导致不必要的性能开销。
+## Problem
+Choosing the wrong conditional rendering directive causes unnecessary performance overhead.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：频繁切换使用 v-if -->
-  <div v-if="isHovered" class="tooltip">提示信息</div>
+  <!-- Bad: Using v-if for frequent toggling -->
+  <div v-if="isHovered" class="tooltip">Tooltip info</div>
 
-  <!-- 错误：很少显示的内容使用 v-show -->
+  <!-- Bad: Using v-show for rarely shown content -->
   <AdminPanel v-show="isAdmin" />
 
-  <!-- 错误：初始不需要的重型组件使用 v-show -->
+  <!-- Bad: Using v-show for heavy components not needed initially -->
   <HeavyChart v-show="showChart" />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- v-show：频繁切换，如 hover、toggle -->
-  <div v-show="isHovered" class="tooltip">提示信息</div>
+  <!-- v-show: Frequent toggling, like hover, toggle -->
+  <div v-show="isHovered" class="tooltip">Tooltip info</div>
 
-  <!-- v-if：条件很少改变 -->
+  <!-- v-if: Condition rarely changes -->
   <AdminPanel v-if="isAdmin" />
 
-  <!-- v-if：初始不需要渲染的重型组件 -->
+  <!-- v-if: Heavy components not needed initially -->
   <HeavyChart v-if="showChart" />
 
-  <!-- v-if + key：强制重新创建组件 -->
+  <!-- v-if + key: Force component recreation -->
   <UserProfile v-if="userId" :key="userId" :id="userId" />
 </template>
 ```
 
-## 选择指南
-| 场景 | 推荐 | 原因 |
-|------|------|------|
-| 频繁切换（hover、tab） | `v-show` | 避免重复创建/销毁 |
-| 条件很少变化 | `v-if` | 避免初始渲染开销 |
-| 初始为 false | `v-if` | 延迟渲染 |
-| 多个互斥条件 | `v-if/v-else-if` | 只渲染一个 |
-| 需要重新初始化 | `v-if` | 条件变化时重新创建 |
+## Selection Guide
+| Scenario | Recommended | Reason |
+|----------|-------------|--------|
+| Frequent toggling (hover, tab) | `v-show` | Avoid repeated create/destroy |
+| Condition rarely changes | `v-if` | Avoid initial render overhead |
+| Initially false | `v-if` | Deferred rendering |
+| Multiple mutually exclusive conditions | `v-if/v-else-if` | Only render one |
+| Need reinitialization | `v-if` | Recreate on condition change |
 
-## 结合 Transition 使用
+## Using with Transition
 ```vue
 <template>
-  <!-- v-show 配合 transition -->
+  <!-- v-show with transition -->
   <Transition name="fade">
     <div v-show="visible" class="modal">
-      内容
+      Content
     </div>
   </Transition>
 
-  <!-- v-if 配合 transition -->
+  <!-- v-if with transition -->
   <Transition name="slide" mode="out-in">
     <component :is="currentTab" :key="currentTab" />
   </Transition>
 </template>
 ```
 
-## 原因
-- `v-if` 是"真正"的条件渲染，会创建/销毁 DOM
-- `v-show` 只是切换 CSS `display` 属性
-- `v-if` 有更高的切换开销，`v-show` 有更高的初始渲染开销
-- 根据切换频率选择合适的指令
+## Why
+- `v-if` is "real" conditional rendering, creates/destroys DOM
+- `v-show` only toggles CSS `display` property
+- `v-if` has higher toggle cost, `v-show` has higher initial render cost
+- Choose appropriate directive based on toggle frequency

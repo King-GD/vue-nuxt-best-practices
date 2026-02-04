@@ -1,22 +1,22 @@
 ---
 id: perf-01
-title: 使用 v-memo 缓存列表项
+title: Use v-memo to Cache List Items
 priority: high
 category: performance
 tags: [performance, v-memo, list]
 ---
 
-# 使用 v-memo 缓存列表项
+# Use v-memo to Cache List Items
 
-## 问题
-大列表中每个项都会在父组件更新时重新渲染，即使数据未变化。
+## Problem
+Every item in a large list re-renders when the parent component updates, even if data hasn't changed.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：每次 counter 变化，所有列表项都重新渲染 -->
+  <!-- Bad: Every list item re-renders when counter changes -->
   <div>
-    <button @click="counter++">计数: {{ counter }}</button>
+    <button @click="counter++">Count: {{ counter }}</button>
     <div v-for="item in items" :key="item.id">
       <ExpensiveComponent :item="item" />
     </div>
@@ -24,12 +24,12 @@ tags: [performance, v-memo, list]
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
   <div>
-    <button @click="counter++">计数: {{ counter }}</button>
-    <!-- v-memo：只在 item.id 或 selected 变化时重新渲染 -->
+    <button @click="counter++">Count: {{ counter }}</button>
+    <!-- v-memo: Only re-render when item.id or selected changes -->
     <div
       v-for="item in items"
       :key="item.id"
@@ -47,7 +47,7 @@ const items = ref<Item[]>([])
 </script>
 ```
 
-## 表格场景
+## Table Scenario
 ```vue
 <template>
   <table>
@@ -59,7 +59,7 @@ const items = ref<Item[]>([])
       <td>{{ row.name }}</td>
       <td>{{ row.value }}</td>
       <td>
-        <button @click="selectedId = row.id">选择</button>
+        <button @click="selectedId = row.id">Select</button>
       </td>
     </tr>
   </table>
@@ -69,18 +69,18 @@ const items = ref<Item[]>([])
 ## v-memo vs computed
 ```vue
 <script setup lang="ts">
-// computed：适合派生数据
+// computed: Suitable for derived data
 const filteredItems = computed(() =>
   items.value.filter(i => i.active)
 )
 
-// v-memo：适合渲染优化
-// 不改变数据，只跳过不必要的重新渲染
+// v-memo: Suitable for render optimization
+// Doesn't change data, only skips unnecessary re-renders
 </script>
 ```
 
-## 原因
-- v-memo 可以跳过子树的重新渲染
-- 依赖数组未变化时，复用上次渲染结果
-- 对大列表有显著性能提升
-- 类似 React.memo 但在模板层面
+## Why
+- v-memo can skip sub-tree re-rendering
+- When dependency array hasn't changed, reuses last render result
+- Significant performance improvement for large lists
+- Similar to React.memo but at template level

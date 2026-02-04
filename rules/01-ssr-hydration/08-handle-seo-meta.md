@@ -1,20 +1,20 @@
 ---
 id: ssr-08
-title: 正确处理 SEO 元信息
+title: Handle SEO Meta Information Correctly
 priority: high
 category: ssr-hydration
 tags: [ssr, seo, head, meta]
 ---
 
-# 正确处理 SEO 元信息
+# Handle SEO Meta Information Correctly
 
-## 问题
-动态 SEO 信息需要在服务端正确渲染，否则搜索引擎无法抓取。
+## Problem
+Dynamic SEO information needs to be rendered correctly on the server, otherwise search engines cannot crawl it.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：onMounted 在服务端不执行
+// Bad: onMounted doesn't run on server
 onMounted(() => {
   document.title = article.value.title
   document.querySelector('meta[name="description"]')
@@ -23,12 +23,12 @@ onMounted(() => {
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const { data: article } = await useFetch('/api/article/1')
 
-// 使用 useHead 或 useSeoMeta
+// Use useHead or useSeoMeta
 useHead({
   title: () => article.value?.title,
   meta: [
@@ -36,7 +36,7 @@ useHead({
   ]
 })
 
-// 或使用更语义化的 useSeoMeta
+// Or use more semantic useSeoMeta
 useSeoMeta({
   title: () => article.value?.title,
   ogTitle: () => article.value?.title,
@@ -47,32 +47,32 @@ useSeoMeta({
 </script>
 ```
 
-## 页面级 SEO 配置
+## Page-Level SEO Configuration
 ```vue
 <script setup lang="ts">
-// 使用 definePageMeta 设置页面元信息
+// Use definePageMeta to set page metadata
 definePageMeta({
-  title: '关于我们',
-  description: '了解我们的团队和使命'
+  title: 'About Us',
+  description: 'Learn about our team and mission'
 })
 </script>
 ```
 
-## 动态标题模板
+## Dynamic Title Template
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   app: {
     head: {
-      titleTemplate: '%s - FOFA',
-      // 或使用函数
-      titleTemplate: (title) => title ? `${title} - FOFA` : 'FOFA'
+      titleTemplate: '%s - MyApp',
+      // Or use a function
+      titleTemplate: (title) => title ? `${title} - MyApp` : 'MyApp'
     }
   }
 })
 ```
 
-## 结构化数据
+## Structured Data
 ```vue
 <script setup lang="ts">
 useHead({
@@ -91,7 +91,7 @@ useHead({
 </script>
 ```
 
-## 原因
-- `useHead` 和 `useSeoMeta` 在 SSR 时正确渲染到 HTML
-- 支持响应式数据，页面数据变化时自动更新
-- 搜索引擎爬虫可以直接获取完整的元信息
+## Why
+- `useHead` and `useSeoMeta` render correctly to HTML during SSR
+- Supports reactive data, automatically updates when page data changes
+- Search engine crawlers can directly get complete meta information

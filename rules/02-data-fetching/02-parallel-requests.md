@@ -1,31 +1,31 @@
 ---
 id: fetch-02
-title: 并行化多个数据请求
+title: Parallelize Multiple Data Requests
 priority: critical
 category: data-fetching
 tags: [data-fetching, waterfall, performance]
 ---
 
-# 并行化多个数据请求
+# Parallelize Multiple Data Requests
 
-## 问题
-串行的数据请求会形成瀑布流，显著增加页面加载时间。
+## Problem
+Sequential data requests create a waterfall pattern, significantly increasing page load time.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：串行请求，总时间 = 请求1 + 请求2 + 请求3
+// Bad: Sequential requests, total time = request1 + request2 + request3
 const { data: user } = await useFetch('/api/user')
 const { data: posts } = await useFetch('/api/posts')
 const { data: comments } = await useFetch('/api/comments')
-// 如果每个请求 200ms，总共需要 600ms
+// If each request takes 200ms, total is 600ms
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 正确：并行请求，总时间 = max(请求1, 请求2, 请求3)
+// Correct: Parallel requests, total time = max(request1, request2, request3)
 const [
   { data: user },
   { data: posts },
@@ -35,27 +35,27 @@ const [
   useFetch('/api/posts'),
   useFetch('/api/comments')
 ])
-// 如果每个请求 200ms，总共只需要约 200ms
+// If each request takes 200ms, total is only about 200ms
 </script>
 ```
 
-## 有依赖关系时的处理
+## Handling Dependencies Between Requests
 ```vue
 <script setup lang="ts">
-// 第一层：无依赖的请求并行
+// First layer: Parallel requests with no dependencies
 const [{ data: user }, { data: config }] = await Promise.all([
   useFetch('/api/user'),
   useFetch('/api/config')
 ])
 
-// 第二层：依赖第一层结果的请求
+// Second layer: Requests that depend on first layer results
 const { data: userPosts } = await useFetch(
   () => `/api/users/${user.value?.id}/posts`,
   { immediate: !!user.value }
 )
 ```
 
-## 使用 useAsyncData 处理复杂场景
+## Using useAsyncData for Complex Scenarios
 ```vue
 <script setup lang="ts">
 const { data: pageData } = await useAsyncData('page-data', async () => {
@@ -70,7 +70,7 @@ const { data: pageData } = await useAsyncData('page-data', async () => {
 </script>
 ```
 
-## 原因
-- 网络请求是 I/O 操作，并行执行可以显著减少总时间
-- 瀑布流模式在慢网络下尤其明显
-- 用户感知的加载时间直接影响体验和转化率
+## Why
+- Network requests are I/O operations, parallel execution significantly reduces total time
+- Waterfall pattern is especially noticeable on slow networks
+- User-perceived loading time directly affects experience and conversion rates

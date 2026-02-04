@@ -1,40 +1,40 @@
 ---
 id: fetch-05
-title: 使用 getCachedData 实现 SWR
+title: Use getCachedData to Implement SWR
 priority: medium
 category: data-fetching
 tags: [data-fetching, cache, swr]
 ---
 
-# 使用 getCachedData 实现 SWR
+# Use getCachedData to Implement SWR
 
-## 问题
-页面切换时总是等待新数据加载，用户体验不够流畅。
+## Problem
+Always waiting for new data on page navigation results in less fluid user experience.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 每次导航都等待数据加载完成
+// Every navigation waits for data to load
 const { data, pending } = await useFetch('/api/products')
-// 用户看到 loading 状态直到数据返回
+// User sees loading state until data returns
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 // SWR: Stale-While-Revalidate
-// 先显示缓存数据，后台刷新
+// Show cached data first, refresh in background
 const { data, pending } = await useFetch('/api/products', {
   getCachedData(key, nuxtApp) {
-    // 返回缓存数据（如果存在）
+    // Return cached data (if exists)
     return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
   }
 })
 </script>
 ```
 
-## 带过期时间的 SWR
+## SWR with Expiration Time
 ```vue
 <script setup lang="ts">
 const { data } = await useFetch('/api/products', {
@@ -43,12 +43,12 @@ const { data } = await useFetch('/api/products', {
 
     if (!cached) return undefined
 
-    // 检查是否过期（5分钟）
+    // Check if expired (5 minutes)
     const expirationDate = new Date(cached.fetchedAt)
     expirationDate.setMinutes(expirationDate.getMinutes() + 5)
 
     if (expirationDate < new Date()) {
-      return undefined // 过期，重新获取
+      return undefined // Expired, refetch
     }
 
     return cached
@@ -63,7 +63,7 @@ const { data } = await useFetch('/api/products', {
 </script>
 ```
 
-## 全局配置 SWR
+## Global SWR Configuration
 ```ts
 // plugins/swr.ts
 export default defineNuxtPlugin((nuxtApp) => {
@@ -81,7 +81,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 ```
 
-## 原因
-- SWR 模式让用户立即看到内容，提升感知速度
-- 后台刷新确保数据最终一致性
-- 适合列表页、搜索结果等可容忍短暂过期的场景
+## Why
+- SWR pattern lets users see content immediately, improving perceived speed
+- Background refresh ensures eventual data consistency
+- Suitable for list pages, search results, and scenarios that can tolerate brief staleness

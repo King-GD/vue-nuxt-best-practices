@@ -1,48 +1,48 @@
 ---
 id: perf-06
-title: 使用 keep-alive 缓存组件状态
+title: Use keep-alive to Cache Component State
 priority: medium
 category: performance
 tags: [performance, keep-alive, cache]
 ---
 
-# 使用 keep-alive 缓存组件状态
+# Use keep-alive to Cache Component State
 
-## 问题
-频繁切换的组件每次都重新创建，丢失状态且有性能开销。
+## Problem
+Frequently toggled components are recreated each time, losing state and causing performance overhead.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：每次切换 tab 都重新创建组件 -->
+  <!-- Bad: Component recreated on every tab switch -->
   <component :is="currentTab" />
 
-  <!-- 错误：路由切换丢失表单状态 -->
+  <!-- Bad: Route change loses form state -->
   <NuxtPage />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- 缓存动态组件 -->
+  <!-- Cache dynamic components -->
   <KeepAlive>
     <component :is="currentTab" />
   </KeepAlive>
 
-  <!-- 指定缓存哪些组件 -->
+  <!-- Specify which components to cache -->
   <KeepAlive :include="['TabA', 'TabB']">
     <component :is="currentTab" />
   </KeepAlive>
 
-  <!-- 限制缓存数量 -->
+  <!-- Limit cache count -->
   <KeepAlive :max="5">
     <component :is="currentTab" />
   </KeepAlive>
 </template>
 ```
 
-## Nuxt 路由缓存
+## Nuxt Route Caching
 ```vue
 <!-- app.vue -->
 <template>
@@ -51,7 +51,7 @@ tags: [performance, keep-alive, cache]
   </NuxtLayout>
 </template>
 
-<!-- 或在页面中配置 -->
+<!-- Or configure in page -->
 <!-- pages/search.vue -->
 <script setup lang="ts">
 definePageMeta({
@@ -60,24 +60,24 @@ definePageMeta({
 </script>
 ```
 
-## 生命周期钩子
+## Lifecycle Hooks
 ```vue
 <script setup lang="ts">
-// keep-alive 专属生命周期
+// keep-alive specific lifecycle
 onActivated(() => {
-  // 组件被激活时（从缓存中恢复）
+  // Component activated (restored from cache)
   refreshData()
 })
 
 onDeactivated(() => {
-  // 组件被缓存时
+  // Component cached
   pauseTimer()
 })
 </script>
 ```
 
-## 原因
-- 避免重复创建组件的开销
-- 保持组件状态（表单输入、滚动位置等）
-- 适合 tab 切换、列表详情来回切换场景
-- 使用 include/exclude 精确控制缓存范围
+## Why
+- Avoids overhead of repeatedly creating components
+- Preserves component state (form inputs, scroll position, etc.)
+- Suitable for tab switching, list-detail back-and-forth navigation
+- Use include/exclude to precisely control cache scope

@@ -1,17 +1,17 @@
 ---
 id: reactivity-02
-title: 避免解构 reactive 对象
+title: Avoid Destructuring Reactive Objects
 priority: critical
 category: reactivity
 tags: [reactivity, destructure, toRefs]
 ---
 
-# 避免解构 reactive 对象
+# Avoid Destructuring Reactive Objects
 
-## 问题
-解构 reactive 对象会丢失响应性，导致数据更新后视图不刷新。
+## Problem
+Destructuring reactive objects loses reactivity, causing views not to update when data changes.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
 const state = reactive({
@@ -19,22 +19,22 @@ const state = reactive({
   name: 'Vue'
 })
 
-// 错误：解构后丢失响应性
+// Bad: Destructuring loses reactivity
 const { count, name } = state
 
 function increment() {
-  count++ // 这不会触发视图更新！
+  count++ // This won't trigger view update!
 }
 
-// 错误：作为参数传递
+// Bad: Passing as parameter
 function useCount(count: number) {
-  // count 只是一个普通数字，失去响应性
+  // count is just a plain number, loses reactivity
 }
 useCount(state.count)
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const state = reactive({
@@ -42,31 +42,31 @@ const state = reactive({
   name: 'Vue'
 })
 
-// 方式1：使用 toRefs 保持响应性
+// Option 1: Use toRefs to maintain reactivity
 const { count, name } = toRefs(state)
 
 function increment() {
-  count.value++ // 正确：通过 .value 修改
+  count.value++ // Correct: Modify via .value
 }
 
-// 方式2：使用 toRef 单个属性
+// Option 2: Use toRef for single property
 const count = toRef(state, 'count')
 
-// 方式3：直接使用 state
+// Option 3: Use state directly
 function increment2() {
-  state.count++ // 正确：直接修改原对象
+  state.count++ // Correct: Modify original object directly
 }
 </script>
 
 <template>
-  <!-- 方式1/2：需要 .value -->
+  <!-- Option 1/2: Need .value -->
   <span>{{ count }}</span>
-  <!-- 方式3：直接访问 -->
+  <!-- Option 3: Direct access -->
   <span>{{ state.count }}</span>
 </template>
 ```
 
-## Composable 中正确返回响应式数据
+## Correctly Returning Reactive Data from Composables
 ```ts
 // composables/useCounter.ts
 export function useCounter() {
@@ -79,33 +79,33 @@ export function useCounter() {
     state.count++
   }
 
-  // 返回 toRefs 保持响应性
+  // Return toRefs to maintain reactivity
   return {
     ...toRefs(state),
     increment
   }
 }
 
-// 使用
+// Usage
 const { count, doubled, increment } = useCounter()
-// count 和 doubled 都是 ref，保持响应性
+// count and doubled are refs, maintaining reactivity
 ```
 
-## 为什么推荐 ref 而非 reactive
+## Why ref is Recommended Over reactive
 ```vue
 <script setup lang="ts">
-// 推荐：使用 ref，解构安全
+// Recommended: Use ref, safe to destructure
 const count = ref(0)
 const name = ref('Vue')
 
-// 可以安全传递和解构
-const { value: currentCount } = count // 只是取值，非响应式
-// 但 count 本身可以安全传递给子组件或 composable
+// Can safely pass and destructure
+const { value: currentCount } = count // Just getting value, not reactive
+// But count itself can be safely passed to child components or composables
 </script>
 ```
 
-## 原因
-- JavaScript 解构是值复制，不是引用
-- 解构基本类型（number, string）会得到一个普通值
-- `toRefs` 将每个属性转换为 ref，保持响应性链接
-- Vue 官方推荐优先使用 `ref` 而非 `reactive`
+## Why
+- JavaScript destructuring is value copy, not reference
+- Destructuring primitive types (number, string) gives a plain value
+- `toRefs` converts each property to ref, maintaining reactive link
+- Vue officially recommends preferring `ref` over `reactive`

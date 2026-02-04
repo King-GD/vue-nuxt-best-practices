@@ -1,53 +1,53 @@
 ---
 id: ssr-02
-title: 正确使用 ClientOnly 组件
+title: Use ClientOnly Component Correctly
 priority: critical
 category: ssr-hydration
 tags: [ssr, client-only, nuxt]
 ---
 
-# 正确使用 ClientOnly 组件
+# Use ClientOnly Component Correctly
 
-## 问题
-某些组件或功能只能在客户端运行（如依赖浏览器 API 的第三方库），需要正确处理 SSR 场景。
+## Problem
+Some components or features can only run on the client side (such as third-party libraries that depend on browser APIs), and need proper handling in SSR scenarios.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：ECharts 依赖 DOM，服务端会报错 -->
+  <!-- Bad: ECharts depends on DOM, will error on server -->
   <VChart :option="chartOption" />
 
-  <!-- 错误：直接使用依赖 window 的组件 -->
+  <!-- Bad: Directly using components that depend on window -->
   <ThirdPartyMap :center="mapCenter" />
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <template>
-  <!-- 使用 ClientOnly 包裹客户端专属组件 -->
+  <!-- Use ClientOnly to wrap client-only components -->
   <ClientOnly>
     <VChart :option="chartOption" />
     <template #fallback>
-      <div class="chart-skeleton">图表加载中...</div>
+      <div class="chart-skeleton">Loading chart...</div>
     </template>
   </ClientOnly>
 
-  <!-- 懒加载 + ClientOnly 结合 -->
+  <!-- Combine lazy loading with ClientOnly -->
   <ClientOnly>
     <LazyThirdPartyMap :center="mapCenter" />
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-// 使用 defineAsyncComponent 进一步优化
+// Use defineAsyncComponent for further optimization
 const VChart = defineAsyncComponent(() => import('vue-echarts'))
 </script>
 ```
 
-## 最佳实践
+## Best Practices
 
-### 1. 提供 fallback 内容
+### 1. Provide fallback content
 ```vue
 <ClientOnly>
   <HeavyComponent />
@@ -57,32 +57,32 @@ const VChart = defineAsyncComponent(() => import('vue-echarts'))
 </ClientOnly>
 ```
 
-### 2. 结合 .client.vue 后缀
+### 2. Use .client.vue suffix
 ```
 components/
-  MyChart.client.vue    # 自动仅在客户端加载
-  MyChart.server.vue    # 可选：服务端替代内容
+  MyChart.client.vue    # Automatically loads only on client
+  MyChart.server.vue    # Optional: server-side alternative content
 ```
 
-### 3. 使用 import.meta.client 条件判断
+### 3. Use import.meta.client conditional
 ```vue
 <script setup lang="ts">
 if (import.meta.client) {
-  // 仅在客户端执行的逻辑
+  // Logic that only executes on client
   const analytics = await import('~/utils/analytics')
   analytics.init()
 }
 </script>
 ```
 
-## 原因
-- `<ClientOnly>` 确保其子组件只在客户端渲染
-- 服务端会渲染 fallback 内容（如果提供）
-- 避免 SSR 阶段访问不存在的浏览器 API
+## Why
+- `<ClientOnly>` ensures its child components only render on the client
+- Server renders fallback content (if provided)
+- Avoids accessing non-existent browser APIs during SSR
 
-## 适用场景
-- 图表库（ECharts、Chart.js）
-- 地图组件（高德、Google Maps）
-- 富文本编辑器
-- 依赖 Canvas/WebGL 的组件
-- 需要访问 localStorage/sessionStorage 的组件
+## Use Cases
+- Chart libraries (ECharts, Chart.js)
+- Map components (AMap, Google Maps)
+- Rich text editors
+- Components that depend on Canvas/WebGL
+- Components that need to access localStorage/sessionStorage

@@ -1,17 +1,17 @@
 ---
 id: state-05
-title: Getter 缓存与依赖追踪
+title: Getter Caching and Dependency Tracking
 priority: medium
 category: state-management
 tags: [pinia, getter, computed]
 ---
 
-# Getter 缓存与依赖追踪
+# Getter Caching and Dependency Tracking
 
-## 问题
-不当使用 getter 会导致性能问题或计算结果不正确。
+## Problem
+Improper use of getters causes performance issues or incorrect computation results.
 
-## 错误示例
+## Bad Example
 ```ts
 // Options API Store
 export const useProductStore = defineStore('product', {
@@ -20,28 +20,28 @@ export const useProductStore = defineStore('product', {
     filters: { category: '', minPrice: 0 }
   }),
   getters: {
-    // 错误：getter 接收参数，无法缓存
+    // Bad: Getter receives parameters, cannot be cached
     getProductById: (state) => (id: number) => {
       return state.products.find(p => p.id === id)
     },
 
-    // 错误：在 getter 中修改 state
+    // Bad: Modifying state in getter
     sortedProducts(state) {
-      state.products.sort((a, b) => a.name.localeCompare(b.name)) // 副作用！
+      state.products.sort((a, b) => a.name.localeCompare(b.name)) // Side effect!
       return state.products
     }
   }
 })
 ```
 
-## 正确示例
+## Good Example
 ```ts
-// Setup Store（推荐）
+// Setup Store (recommended)
 export const useProductStore = defineStore('product', () => {
   const products = ref<Product[]>([])
   const filters = ref({ category: '', minPrice: 0 })
 
-  // 正确：使用 computed 自动缓存
+  // Correct: Use computed for automatic caching
   const filteredProducts = computed(() =>
     products.value.filter(p =>
       (!filters.value.category || p.category === filters.value.category) &&
@@ -53,7 +53,7 @@ export const useProductStore = defineStore('product', () => {
     [...filteredProducts.value].sort((a, b) => a.name.localeCompare(b.name))
   )
 
-  // 需要参数的查询用 Map 缓存
+  // Cache queries that need parameters using Map
   const productById = computed(() => {
     const map = new Map<number, Product>()
     products.value.forEach(p => map.set(p.id, p))
@@ -74,14 +74,14 @@ export const useProductStore = defineStore('product', () => {
 })
 ```
 
-## 复杂计算使用 useMemoize
+## Use useMemoize for Complex Calculations
 ```ts
 import { useMemoize } from '@vueuse/core'
 
 export const useSearchStore = defineStore('search', () => {
   const items = ref<Item[]>([])
 
-  // 带缓存的搜索函数
+  // Cached search function
   const searchItems = useMemoize((query: string) =>
     items.value.filter(item =>
       item.name.toLowerCase().includes(query.toLowerCase())
@@ -92,8 +92,8 @@ export const useSearchStore = defineStore('search', () => {
 })
 ```
 
-## 原因
-- computed/getter 基于依赖自动缓存
-- 返回函数的 getter 每次调用都执行
-- 不要在 getter 中产生副作用
-- 复杂查询考虑使用 Map 或 memoize
+## Why
+- computed/getter automatically caches based on dependencies
+- Getters that return functions execute on every call
+- Don't create side effects in getters
+- Consider using Map or memoize for complex queries

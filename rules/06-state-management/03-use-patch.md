@@ -1,21 +1,21 @@
 ---
 id: state-03
-title: 使用 $patch 批量更新状态
+title: Use $patch for Batch State Updates
 priority: medium
 category: state-management
 tags: [pinia, patch, performance]
 ---
 
-# 使用 $patch 批量更新状态
+# Use $patch for Batch State Updates
 
-## 问题
-多次单独修改 state 会触发多次响应式更新。
+## Problem
+Multiple individual state modifications trigger multiple reactive updates.
 
-## 错误示例
+## Bad Example
 ```ts
 // stores/user.ts
 function updateProfile(data: ProfileData) {
-  // 错误：每行都触发一次更新
+  // Bad: Each line triggers an update
   this.user.name = data.name
   this.user.email = data.email
   this.user.avatar = data.avatar
@@ -24,11 +24,11 @@ function updateProfile(data: ProfileData) {
 }
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // stores/user.ts
 function updateProfile(data: ProfileData) {
-  // 正确：使用 $patch 批量更新，只触发一次
+  // Correct: Use $patch for batch update, triggers only once
   this.$patch({
     user: {
       ...this.user,
@@ -38,7 +38,7 @@ function updateProfile(data: ProfileData) {
   })
 }
 
-// 或使用函数形式（适合复杂更新）
+// Or use function form (suitable for complex updates)
 function updateProfile(data: ProfileData) {
   this.$patch((state) => {
     state.user.name = data.name
@@ -50,27 +50,27 @@ function updateProfile(data: ProfileData) {
 }
 ```
 
-## 数组操作
+## Array Operations
 ```ts
-// 对象形式会替换整个数组
+// Object form replaces entire array
 store.$patch({
   items: [...store.items, newItem]
 })
 
-// 函数形式可以原地修改
+// Function form can modify in place
 store.$patch((state) => {
   state.items.push(newItem)
   state.items.sort((a, b) => a.order - b.order)
 })
 ```
 
-## $reset 重置状态
+## $reset to Reset State
 ```ts
-// Options Store 支持 $reset
+// Options Store supports $reset
 const store = useUserStore()
-store.$reset() // 重置到初始状态
+store.$reset() // Reset to initial state
 
-// Setup Store 需要手动实现
+// Setup Store needs manual implementation
 export const useUserStore = defineStore('user', () => {
   const initialState = {
     user: null,
@@ -89,8 +89,8 @@ export const useUserStore = defineStore('user', () => {
 })
 ```
 
-## 原因
-- $patch 将多次修改合并为一次更新
-- 减少不必要的重新渲染
-- 函数形式支持复杂的更新逻辑
-- 提升大量状态更新时的性能
+## Why
+- $patch merges multiple modifications into one update
+- Reduces unnecessary re-renders
+- Function form supports complex update logic
+- Improves performance when updating many state properties

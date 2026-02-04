@@ -1,24 +1,24 @@
 ---
 id: bundle-07
-title: 使用外部 CDN 加载大型库
+title: Use External CDN for Large Libraries
 priority: low
 category: bundle-optimization
 tags: [bundle, cdn, external]
 ---
 
-# 使用外部 CDN 加载大型库
+# Use External CDN for Large Libraries
 
-## 问题
-某些大型库（如 echarts）打包后体积较大，影响加载速度。
+## Problem
+Large libraries (like echarts) have significant bundle size after packaging, affecting load speed.
 
-## 配置示例
+## Configuration Example
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   app: {
     head: {
       script: [
-        // 从 CDN 加载 echarts
+        // Load echarts from CDN
         {
           src: 'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js',
           defer: true
@@ -42,7 +42,7 @@ export default defineNuxtConfig({
 })
 ```
 
-## 使用 @nuxt/scripts
+## Using @nuxt/scripts
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
@@ -56,33 +56,33 @@ export default defineNuxtConfig({
   }
 })
 
-// 组件中使用
+// In component
 <script setup lang="ts">
 const { $script } = useScript('echarts')
 await $script
-// echarts 已加载
+// echarts is loaded
 </script>
 ```
 
-## 注意事项
+## Important Notes
 ```ts
-// 1. 确保 CDN 可靠性
-// 2. 考虑国内用户使用国内 CDN
-// 3. 添加完整性校验
+// 1. Ensure CDN reliability
+// 2. Consider using local CDN for users in certain regions
+// 3. Add integrity verification
 {
   src: 'https://cdn.example.com/lib.js',
   integrity: 'sha384-xxx',
   crossorigin: 'anonymous'
 }
 
-// 4. 提供 fallback
+// 4. Provide fallback
 <script>
   window.echarts || document.write('<script src="/fallback/echarts.js"><\/script>')
 </script>
 ```
 
-## 原因
-- CDN 边缘节点离用户更近
-- 可能已被其他网站缓存
-- 减少服务器 bundle 体积
-- 适合不经常更新的大型库
+## Why
+- CDN edge nodes are closer to users
+- May already be cached by other websites
+- Reduces server bundle size
+- Suitable for large libraries that don't update frequently

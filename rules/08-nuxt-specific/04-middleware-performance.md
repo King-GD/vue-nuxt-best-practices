@@ -1,45 +1,45 @@
 ---
 id: nuxt-04
-title: 中间件性能优化
+title: Middleware Performance Optimization
 priority: medium
 category: nuxt-specific
 tags: [nuxt, middleware, performance]
 ---
 
-# 中间件性能优化
+# Middleware Performance Optimization
 
-## 问题
-中间件逻辑过重会影响每次路由跳转的性能。
+## Problem
+Heavy middleware logic affects performance on every route navigation.
 
-## 错误示例
+## Bad Example
 ```ts
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  // 错误：每次路由跳转都请求 API
+  // Bad: API request on every route navigation
   const user = await $fetch('/api/user')
 
   if (!user) {
     return navigateTo('/login')
   }
 
-  // 错误：在中间件中做复杂计算
+  // Bad: Complex calculations in middleware
   const permissions = calculatePermissions(user)
   // ...
 })
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware((to, from) => {
   const userStore = useUserStore()
 
-  // 使用缓存的用户状态
+  // Use cached user state
   if (!userStore.isLoggedIn) {
     return navigateTo('/login')
   }
 
-  // 检查页面权限
+  // Check page permissions
   const requiredPermissions = to.meta.requiredPermissions as string[] | undefined
   if (requiredPermissions && !userStore.hasPermissions(requiredPermissions)) {
     return navigateTo('/403')
@@ -47,35 +47,35 @@ export default defineNuxtRouteMiddleware((to, from) => {
 })
 
 // middleware/auth.global.ts
-// 全局中间件：只在需要时请求
+// Global middleware: only request when needed
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const userStore = useUserStore()
 
-  // 只在用户未初始化时请求
+  // Only request when user is not initialized
   if (!userStore.initialized) {
     await userStore.init()
   }
 })
 ```
 
-## 按需应用中间件
+## Apply Middleware On-Demand
 ```vue
 <script setup lang="ts">
 definePageMeta({
-  // 只在需要的页面应用
+  // Only apply on pages that need it
   middleware: ['auth']
 })
 </script>
 
-<!-- 而不是使用全局中间件 -->
+<!-- Instead of using global middleware -->
 ```
 
-## 内联中间件
+## Inline Middleware
 ```vue
 <script setup lang="ts">
 definePageMeta({
   middleware: [
-    // 内联中间件，只对当前页面生效
+    // Inline middleware, only applies to current page
     function (to, from) {
       const { isAdmin } = useUserStore()
       if (!isAdmin) {
@@ -87,8 +87,8 @@ definePageMeta({
 </script>
 ```
 
-## 原因
-- 中间件在每次路由跳转时执行
-- 避免不必要的 API 请求
-- 使用缓存的状态而非每次重新获取
-- 按需应用减少不必要的检查
+## Why
+- Middleware executes on every route navigation
+- Avoid unnecessary API requests
+- Use cached state instead of fetching each time
+- On-demand application reduces unnecessary checks

@@ -3,45 +3,45 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Agent Skill](https://img.shields.io/badge/Agent%20Skill-Compatible-blue)](https://github.com/anthropics/skills)
 
-Vue3 和 Nuxt4 性能优化最佳实践，专为 AI 编码助手设计的 Agent Skill。
+Performance optimization best practices for Vue3 and Nuxt4, designed as an Agent Skill for AI coding assistants.
 
-## 特性
+## Features
 
-- **57 条优化规则**：覆盖 SSR、数据获取、响应式、组件设计、性能优化等 8 个领域
-- **优先级分类**：Critical / High / Medium / Low 四级优先级
-- **实战导向**：规则来源于真实生产环境的性能优化经验
-- **跨平台兼容**：支持 Claude Code、Cursor、VS Code、Windsurf 等主流 AI 编码工具
+- **57 Optimization Rules**: Covering 8 areas including SSR, data fetching, reactivity, component design, and performance optimization
+- **Priority Classification**: Four priority levels - Critical / High / Medium / Low
+- **Production-Ready**: Rules derived from real-world production environment optimization experience
+- **Cross-Platform Compatible**: Supports mainstream AI coding tools including Claude Code, Cursor, VS Code, Windsurf, and more
 
 ---
 
-## 🚀 安装方式
+## 🚀 Installation
 
-### 方式一：使用 add-skill CLI（推荐）
+### Option 1: Using add-skill CLI (Recommended)
 
 ```bash
-# 从 GitHub 安装
+# Install from GitHub
 npx add-skill King-GD/vue-nuxt-best-practices
 
-# 或指定完整路径
+# Or specify the full path
 npx add-skill github:King-GD/vue-nuxt-best-practices
 ```
 
-安装时会提示选择：
-- **Global（全局）**：适用于所有项目
-- **Project（项目）**：仅当前项目
+During installation, you'll be prompted to choose:
+- **Global**: Applies to all projects
+- **Project**: Current project only
 
 ---
 
-### 方式二：Claude Code 手动配置
+### Option 2: Claude Code Manual Configuration
 
-#### 全局安装（所有项目生效）
+#### Global Installation (Applies to All Projects)
 
-1. 克隆仓库到本地：
+1. Clone the repository locally:
 ```bash
 git clone https://github.com/King-GD/vue-nuxt-best-practices.git ~/.claude/skills/vue-nuxt-best-practices
 ```
 
-2. 编辑 `~/.claude/settings.json`：
+2. Edit `~/.claude/settings.json`:
 ```json
 {
   "skills": [
@@ -50,18 +50,18 @@ git clone https://github.com/King-GD/vue-nuxt-best-practices.git ~/.claude/skill
 }
 ```
 
-#### 项目级安装（仅当前项目生效）
+#### Project-Level Installation (Current Project Only)
 
-1. 将 skill 添加到项目：
+1. Add the skill to your project:
 ```bash
-# 作为 git submodule
+# As a git submodule
 git submodule add https://github.com/King-GD/vue-nuxt-best-practices.git .claude/skills/vue-nuxt-best-practices
 
-# 或直接克隆
+# Or clone directly
 git clone https://github.com/King-GD/vue-nuxt-best-practices.git .claude/skills/vue-nuxt-best-practices
 ```
 
-2. 创建 `.claude/settings.local.json`：
+2. Create `.claude/settings.local.json`:
 ```json
 {
   "skills": [
@@ -72,102 +72,102 @@ git clone https://github.com/King-GD/vue-nuxt-best-practices.git .claude/skills/
 
 ---
 
-### 方式三：Cursor
+### Option 3: Cursor
 
-将 `SKILL.md` 复制到项目的 `.cursor/rules/` 目录：
+Copy `SKILL.md` to your project's `.cursor/rules/` directory:
 
 ```bash
 mkdir -p .cursor/rules
 curl -o .cursor/rules/vue-nuxt-best-practices.md https://raw.githubusercontent.com/King-GD/vue-nuxt-best-practices/main/SKILL.md
 ```
 
-或在 Cursor 设置中添加 Rules：
-1. 打开 Cursor Settings → Rules
-2. 添加新规则，粘贴 `SKILL.md` 内容
+Or add Rules in Cursor settings:
+1. Open Cursor Settings → Rules
+2. Add a new rule and paste the contents of `SKILL.md`
 
 ---
 
-### 方式四：VS Code + Continue/Cline
+### Option 4: VS Code + Continue/Cline
 
-将 `SKILL.md` 内容添加到 `.continuerules` 或 `.clinerules` 文件。
+Add the contents of `SKILL.md` to your `.continuerules` or `.clinerules` file.
 
 ---
 
-### 方式五：直接下载
+### Option 5: Direct Download
 
 ```bash
-# 下载单个文件
+# Download a single file
 curl -O https://raw.githubusercontent.com/King-GD/vue-nuxt-best-practices/main/SKILL.md
 
-# 下载完整仓库
+# Download the complete repository
 git clone https://github.com/King-GD/vue-nuxt-best-practices.git
 ```
 
 ---
 
-## 📖 使用效果
+## 📖 Usage Examples
 
-安装后，AI 编码助手会自动：
+After installation, your AI coding assistant will automatically:
 
-### 1. 代码审查
+### 1. Code Review
 ```
-用户：帮我检查这段代码有什么问题
+User: Help me check what's wrong with this code
 
-AI：我发现以下问题：
-1. [CRITICAL] 第 15 行使用 $fetch 会导致数据重复获取，应使用 useFetch
-2. [HIGH] 第 23 行解构 reactive 对象会丢失响应性，应使用 toRefs
-3. [MEDIUM] 第 45 行的复杂表达式应该使用 computed 缓存
-```
-
-### 2. 代码生成
-```
-用户：帮我写一个获取用户列表的页面
-
-AI：我会应用以下最佳实践：
-- 使用 useFetch 而非 $fetch
-- 并行化多个请求
-- 使用 shallowRef 处理大数组
-- 正确处理 loading 和 error 状态
-
-[生成符合最佳实践的代码]
+AI: I found the following issues:
+1. [CRITICAL] Line 15 uses $fetch which causes duplicate data fetching, should use useFetch
+2. [HIGH] Line 23 destructures a reactive object which loses reactivity, should use toRefs
+3. [MEDIUM] The complex expression on line 45 should be cached using computed
 ```
 
-### 3. 重构建议
+### 2. Code Generation
 ```
-用户：这个组件很慢，帮我优化
+User: Help me write a page to fetch and display a user list
 
-AI：根据 Vue/Nuxt 最佳实践，我建议：
-1. 使用 v-memo 缓存列表项
-2. 使用虚拟滚动处理大列表
-3. 将非关键数据改为 lazy 加载
+AI: I will apply the following best practices:
+- Use useFetch instead of $fetch
+- Parallelize multiple requests
+- Use shallowRef for large arrays
+- Properly handle loading and error states
+
+[Generates code following best practices]
+```
+
+### 3. Refactoring Suggestions
+```
+User: This component is slow, help me optimize it
+
+AI: Based on Vue/Nuxt best practices, I suggest:
+1. Use v-memo to cache list items
+2. Use virtual scrolling for large lists
+3. Change non-critical data to lazy loading
 ```
 
 ---
 
-## 📋 规则分类
+## 📋 Rule Categories
 
-| 优先级 | 分类 | 规则数 | 说明 |
-|--------|------|--------|------|
-| 🔴 Critical | SSR & Hydration | 8 | 必须遵循，违反会导致 bug |
-| 🔴 Critical | Data Fetching | 7 | 必须遵循，影响性能和 SEO |
-| 🟠 High | Reactivity | 8 | 强烈推荐，影响响应式正确性 |
-| 🟠 High | Component Design | 7 | 强烈推荐，影响可维护性 |
-| 🟡 Medium | Performance | 8 | 推荐，提升用户体验 |
-| 🟡 Medium | State Management | 6 | 推荐，Pinia 最佳实践 |
-| 🟢 Low | Bundle Optimization | 7 | 进阶，减少打包体积 |
-| 🟢 Low | Nuxt Specific | 6 | 进阶，Nuxt 特有优化 |
+| Priority | Category | Rules | Description |
+|----------|----------|-------|-------------|
+| 🔴 Critical | SSR & Hydration | 8 | Must follow, violations cause bugs |
+| 🔴 Critical | Data Fetching | 7 | Must follow, affects performance and SEO |
+| 🟠 High | Reactivity | 8 | Strongly recommended, affects reactivity correctness |
+| 🟠 High | Component Design | 7 | Strongly recommended, affects maintainability |
+| 🟡 Medium | Performance | 8 | Recommended, improves user experience |
+| 🟡 Medium | State Management | 6 | Recommended, Pinia best practices |
+| 🟢 Low | Bundle Optimization | 7 | Advanced, reduces bundle size |
+| 🟢 Low | Nuxt Specific | 6 | Advanced, Nuxt-specific optimizations |
 
 ---
 
-## 🔧 项目结构
+## 🔧 Project Structure
 
 ```
 vue-nuxt-best-practices/
-├── SKILL.md               # 主入口文件（AI 读取）
-├── AGENTS.md              # 详细规则摘要
-├── README.md              # 项目说明
-├── package.json           # Skill 元数据
-├── rules/                 # 详细规则文件（57 条）
+├── SKILL.md               # Main entry file (read by AI)
+├── AGENTS.md              # Detailed rules summary
+├── README.md              # Project documentation
+├── package.json           # Skill metadata
+├── rules/                 # Detailed rule files (57 rules)
 │   ├── 01-ssr-hydration/
 │   ├── 02-data-fetching/
 │   ├── 03-reactivity/
@@ -177,12 +177,12 @@ vue-nuxt-best-practices/
 │   ├── 07-bundle-optimization/
 │   └── 08-nuxt-specific/
 └── scripts/
-    └── build.js           # 编译规则脚本
+    └── build.js           # Build rules script
 ```
 
 ---
 
-## 🛠 技术栈支持
+## 🛠 Tech Stack Support
 
 - Vue 3.5+
 - Nuxt 4.x / Nuxt 3.x
@@ -193,53 +193,53 @@ vue-nuxt-best-practices/
 
 ---
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 PR 添加新规则或改进现有规则！
+PRs are welcome to add new rules or improve existing ones!
 
-### 规则格式
+### Rule Format
 
-每条规则应包含：
+Each rule should include:
 ```markdown
 ---
 id: category-01
-title: 规则标题
+title: Rule Title
 priority: critical | high | medium | low
 category: category-name
 tags: [tag1, tag2]
 ---
 
-# 规则标题
+# Rule Title
 
-## 问题
-描述这个规则要解决的问题
+## Problem
+Describe the problem this rule addresses
 
-## 错误示例
-展示错误的代码
+## Bad Example
+Show incorrect code
 
-## 正确示例
-展示正确的代码
+## Good Example
+Show correct code
 
-## 原因
-解释为什么这样做更好
+## Why
+Explain why this approach is better
 ```
 
-### 提交规则
+### Submission Guidelines
 
-1. Fork 本仓库
-2. 在对应分类目录下创建规则文件
-3. 运行 `npm run build` 更新 AGENTS.md
-4. 提交 PR
+1. Fork this repository
+2. Create a rule file in the appropriate category directory
+3. Run `npm run build` to update AGENTS.md
+4. Submit a PR
 
 ---
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
 ---
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-- 设计理念参考 [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
-- 感谢 [Anthropic](https://anthropic.com) 创建 Agent Skills 规范
+- Design concept inspired by [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
+- Thanks to [Anthropic](https://anthropic.com) for creating the Agent Skills specification

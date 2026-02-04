@@ -1,19 +1,19 @@
 ---
 id: nuxt-06
-title: 使用 useState 跨组件共享状态
+title: Use useState for Cross-Component State Sharing
 priority: high
 category: nuxt-specific
 tags: [nuxt, useState, ssr]
 ---
 
-# 使用 useState 跨组件共享状态
+# Use useState for Cross-Component State Sharing
 
-## 问题
-简单状态共享不需要引入 Pinia 的复杂度。
+## Problem
+Simple state sharing doesn't need the complexity of Pinia.
 
-## 错误示例
+## Bad Example
 ```ts
-// 错误：模块级变量在 SSR 中会跨请求共享
+// Bad: Module-level variables are shared across requests in SSR
 let globalCount = 0
 
 export function useCounter() {
@@ -24,11 +24,11 @@ export function useCounter() {
 }
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // composables/useCounter.ts
 export function useCounter() {
-  // useState：SSR 安全的状态
+  // useState: SSR-safe state
   const count = useState('counter', () => 0)
 
   function increment() {
@@ -38,20 +38,20 @@ export function useCounter() {
   return { count, increment }
 }
 
-// 在任何组件中使用
+// Use in any component
 const { count, increment } = useCounter()
-// 相同 key 共享同一个状态
+// Same key shares the same state
 ```
 
-## 常见使用场景
+## Common Use Cases
 ```ts
-// 用户状态
+// User state
 const user = useState<User | null>('user', () => null)
 
-// 主题
+// Theme
 const theme = useState<'light' | 'dark'>('theme', () => 'light')
 
-// 全局配置
+// Global config
 const config = useState('config', () => ({
   sidebar: true,
   notifications: true
@@ -59,28 +59,28 @@ const config = useState('config', () => ({
 ```
 
 ## useState vs Pinia
-| 场景 | 推荐 |
-|------|------|
-| 简单共享状态 | useState |
-| 复杂业务逻辑 | Pinia |
-| 需要 devtools | Pinia |
-| 需要持久化 | Pinia |
-| 快速原型 | useState |
+| Scenario | Recommended |
+|----------|-------------|
+| Simple shared state | useState |
+| Complex business logic | Pinia |
+| Need devtools | Pinia |
+| Need persistence | Pinia |
+| Quick prototyping | useState |
 
-## 初始化服务端状态
+## Initialize Server-Side State
 ```ts
 // plugins/init-state.server.ts
 export default defineNuxtPlugin(async () => {
   const user = useState('user')
 
-  // 服务端初始化
+  // Server-side initialization
   const { data } = await useFetch('/api/user')
   user.value = data.value
 })
 ```
 
-## 原因
-- useState 是 SSR 安全的
-- 每个请求有独立的状态
-- 自动序列化传递给客户端
-- 比 Pinia 更轻量
+## Why
+- useState is SSR-safe
+- Each request has isolated state
+- Automatically serialized and passed to client
+- Lighter than Pinia

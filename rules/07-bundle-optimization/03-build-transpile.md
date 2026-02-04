@@ -1,40 +1,40 @@
 ---
 id: bundle-03
-title: 配置 build.transpile 优化依赖
+title: Configure build.transpile to Optimize Dependencies
 priority: medium
 category: bundle-optimization
 tags: [bundle, transpile, nuxt]
 ---
 
-# 配置 build.transpile 优化依赖
+# Configure build.transpile to Optimize Dependencies
 
-## 问题
-某些 npm 包未编译为 ES5 或存在 ESM 兼容问题。
+## Problem
+Some npm packages are not compiled to ES5 or have ESM compatibility issues.
 
-## 错误示例
+## Bad Example
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  // 未配置 transpile，某些包可能在低版本浏览器报错
+  // Without transpile config, some packages may error in older browsers
 })
 
-// 控制台错误：Unexpected token 'export'
+// Console error: Unexpected token 'export'
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   build: {
     transpile: [
-      // ESM 包需要转译
+      // ESM packages need transpilation
       'vue-echarts',
       'resize-detector',
 
-      // 正则匹配
+      // Regex matching
       /echarts/,
 
-      // 条件转译
+      // Conditional transpilation
       ...(process.env.NODE_ENV === 'production' ? ['some-package'] : [])
     ]
   },
@@ -42,20 +42,20 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
-        // 预构建这些依赖
+        // Pre-bundle these dependencies
         'lodash-es',
         'dayjs',
         'axios'
       ],
       exclude: [
-        // 排除不需要预构建的
+        // Exclude packages that don't need pre-bundling
       ]
     }
   }
 })
 ```
 
-## 处理 CommonJS 依赖
+## Handle CommonJS Dependencies
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
@@ -70,18 +70,18 @@ export default defineNuxtConfig({
 })
 ```
 
-## 调试依赖问题
+## Debug Dependency Issues
 ```bash
-# 清除缓存重新构建
+# Clear cache and rebuild
 rm -rf .nuxt node_modules/.vite
 npm run build
 
-# 分析是哪个包导致的问题
+# Analyze which package is causing issues
 npx nuxi analyze
 ```
 
-## 原因
-- 部分 npm 包使用现代 JS 语法未转译
-- ESM 和 CJS 混用可能导致问题
-- transpile 确保兼容性
-- optimizeDeps 优化开发环境启动速度
+## Why
+- Some npm packages use modern JS syntax without transpilation
+- Mixing ESM and CJS can cause issues
+- transpile ensures compatibility
+- optimizeDeps optimizes dev environment startup speed

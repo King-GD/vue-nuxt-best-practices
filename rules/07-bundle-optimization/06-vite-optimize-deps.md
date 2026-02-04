@@ -1,23 +1,23 @@
 ---
 id: bundle-06
-title: 配置 vite.optimizeDeps
+title: Configure vite.optimizeDeps
 priority: medium
 category: bundle-optimization
 tags: [bundle, vite, optimize]
 ---
 
-# 配置 vite.optimizeDeps
+# Configure vite.optimizeDeps
 
-## 问题
-开发环境首次加载慢，或某些依赖无法正确预构建。
+## Problem
+Slow initial load in dev environment, or some dependencies fail to pre-bundle correctly.
 
-## 正确配置
+## Correct Configuration
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
-      // 强制预构建这些依赖
+      // Force pre-bundle these dependencies
       include: [
         'lodash-es',
         'dayjs',
@@ -28,36 +28,36 @@ export default defineNuxtConfig({
         'vue-echarts'
       ],
 
-      // 排除不需要预构建的（如已经是 ESM 的包）
+      // Exclude packages that don't need pre-bundling (e.g., already ESM)
       exclude: [
-        '@vueuse/core'  // 已经是 ESM，不需要预构建
+        '@vueuse/core'  // Already ESM, no pre-bundling needed
       ]
     },
 
-    // SSR 专属配置
+    // SSR-specific configuration
     ssr: {
-      // 强制外部化（不打包进 server bundle）
+      // Force externalize (don't bundle into server bundle)
       external: ['some-server-only-package'],
 
-      // 强制内联（打包进 server bundle）
+      // Force inline (bundle into server bundle)
       noExternal: ['some-esm-package']
     }
   }
 })
 ```
 
-## 解决常见问题
+## Solve Common Issues
 ```ts
-// 依赖预构建问题
+// Dependency pre-bundling issues
 export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
-      // 强制重新预构建
+      // Force re-prebundle
       force: true,
 
-      // 自定义 esbuild 选项
+      // Custom esbuild options
       esbuildOptions: {
-        // 支持顶层 await
+        // Support top-level await
         target: 'esnext'
       }
     }
@@ -65,18 +65,18 @@ export default defineNuxtConfig({
 })
 ```
 
-## 清除缓存
+## Clear Cache
 ```bash
-# 开发环境问题时尝试清除缓存
+# Try clearing cache when dev environment issues occur
 rm -rf node_modules/.vite
 rm -rf .nuxt
 
-# 重新启动
+# Restart
 npm run dev
 ```
 
-## 原因
-- 预构建将 CommonJS 转换为 ESM
-- 减少开发环境的请求数量
-- 解决某些包的兼容性问题
-- 优化开发服务器启动速度
+## Why
+- Pre-bundling converts CommonJS to ESM
+- Reduces number of requests in dev environment
+- Solves compatibility issues with some packages
+- Optimizes dev server startup speed

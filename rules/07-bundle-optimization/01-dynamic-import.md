@@ -1,29 +1,29 @@
 ---
 id: bundle-01
-title: 使用动态 import 代码分割
+title: Use Dynamic Import for Code Splitting
 priority: high
 category: bundle-optimization
 tags: [bundle, code-splitting, dynamic-import]
 ---
 
-# 使用动态 import 代码分割
+# Use Dynamic Import for Code Splitting
 
-## 问题
-所有代码打包在一起会导致初始 bundle 过大。
+## Problem
+Bundling all code together leads to an excessively large initial bundle.
 
-## 错误示例
+## Bad Example
 ```ts
-// 错误：静态导入大型库
+// Bad: Static imports of large libraries
 import { Chart } from 'echarts'
 import * as XLSX from 'xlsx'
 import MarkdownIt from 'markdown-it'
 
-// 即使用户不使用这些功能，也会加载
+// These are loaded even if users don't use these features
 ```
 
-## 正确示例
+## Good Example
 ```ts
-// 正确：动态导入，按需加载
+// Good: Dynamic imports, load on demand
 async function renderChart(data: ChartData) {
   const { Chart } = await import('echarts')
   const chart = new Chart(container)
@@ -36,38 +36,38 @@ async function exportExcel(data: any[]) {
   // ...
 }
 
-// 结合 defineAsyncComponent
+// Combined with defineAsyncComponent
 const MarkdownPreview = defineAsyncComponent(async () => {
   const [{ default: MarkdownIt }, { default: Component }] = await Promise.all([
     import('markdown-it'),
     import('./MarkdownPreview.vue')
   ])
-  // 可以在这里初始化 MarkdownIt
+  // MarkdownIt can be initialized here
   return Component
 })
 ```
 
-## 路由级别分割
+## Route-Level Splitting
 ```ts
-// Nuxt 自动对页面进行代码分割
-// pages/admin/dashboard.vue 只在访问时加载
+// Nuxt automatically code-splits pages
+// pages/admin/dashboard.vue only loads when accessed
 
-// 手动配置预加载
+// Manual preload configuration
 definePageMeta({
-  // 预加载相关组件
+  // Preload related components
 })
 ```
 
-## 分析 bundle
+## Analyze Bundle
 ```bash
-# 使用 nuxi analyze 分析 bundle 构成
+# Use nuxi analyze to analyze bundle composition
 npx nuxi analyze
 
-# 或配置 vite-bundle-visualizer
+# Or configure vite-bundle-visualizer
 ```
 
-## 原因
-- 代码分割减少初始加载体积
-- 用户只加载当前需要的代码
-- 提升 FCP 和 TTI 指标
-- Nuxt 对页面自动分割
+## Why
+- Code splitting reduces initial load size
+- Users only load the code they currently need
+- Improves FCP and TTI metrics
+- Nuxt automatically splits pages

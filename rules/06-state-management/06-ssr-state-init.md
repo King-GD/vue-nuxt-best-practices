@@ -1,24 +1,24 @@
 ---
 id: state-06
-title: 服务端状态初始化
+title: Server-Side State Initialization
 priority: high
 category: state-management
 tags: [pinia, ssr, nuxt, hydration]
 ---
 
-# 服务端状态初始化
+# Server-Side State Initialization
 
-## 问题
-SSR 时 store 状态需要正确序列化传递给客户端，否则会导致 hydration mismatch。
+## Problem
+During SSR, store state needs to be correctly serialized and passed to the client, otherwise it causes hydration mismatch.
 
-## 错误示例
+## Bad Example
 ```ts
 // stores/user.ts
 export const useUserStore = defineStore('user', () => {
-  // 错误：在 store 定义中发起请求
+  // Bad: Making requests in store definition
   const user = ref(null)
 
-  // 这会在每次导入 store 时执行
+  // This executes every time the store is imported
   $fetch('/api/user').then(data => {
     user.value = data
   })
@@ -27,7 +27,7 @@ export const useUserStore = defineStore('user', () => {
 })
 ```
 
-## 正确示例
+## Good Example
 ```ts
 // stores/user.ts
 export const useUserStore = defineStore('user', () => {
@@ -46,7 +46,7 @@ export default defineNuxtPlugin(async () => {
   await userStore.fetchUser()
 })
 
-// 或在页面/布局中初始化
+// Or initialize in page/layout
 // layouts/default.vue
 <script setup lang="ts">
 const userStore = useUserStore()
@@ -54,30 +54,30 @@ await userStore.fetchUser()
 </script>
 ```
 
-## 使用 useState 替代简单状态
+## Use useState for Simple State
 ```vue
 <script setup lang="ts">
-// useState 是 Nuxt 内置的 SSR 友好状态
+// useState is Nuxt's built-in SSR-friendly state
 const user = useState<User | null>('user', () => null)
 
-// 自动处理 SSR hydration
+// Automatically handles SSR hydration
 const { data } = await useFetch('/api/user')
 user.value = data.value
 </script>
 ```
 
-## Pinia + Nuxt 集成
+## Pinia + Nuxt Integration
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['@pinia/nuxt']
 })
 
-// Pinia 状态会自动通过 payload 传递给客户端
-// 无需手动处理序列化
+// Pinia state is automatically passed to client via payload
+// No need for manual serialization
 ```
 
-## 使用 useNuxtApp 访问上下文
+## Using useNuxtApp to Access Context
 ```ts
 // stores/auth.ts
 export const useAuthStore = defineStore('auth', () => {
@@ -87,7 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { ssrContext } = useNuxtApp()
 
     if (import.meta.server && ssrContext) {
-      // 服务端：从请求中获取 cookie
+      // Server-side: Get cookie from request
       const cookie = ssrContext.event.headers.get('cookie')
       // ...
     }
@@ -97,8 +97,8 @@ export const useAuthStore = defineStore('auth', () => {
 })
 ```
 
-## 原因
-- Pinia + @pinia/nuxt 自动处理 SSR 状态传递
-- 避免在 store 定义中发起副作用
-- 使用 plugins 或页面组件初始化状态
-- useState 适合简单的跨组件状态共享
+## Why
+- Pinia + @pinia/nuxt automatically handles SSR state transfer
+- Avoid side effects in store definitions
+- Use plugins or page components to initialize state
+- useState is suitable for simple cross-component state sharing

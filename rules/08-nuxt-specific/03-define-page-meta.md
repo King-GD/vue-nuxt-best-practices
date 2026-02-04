@@ -1,68 +1,68 @@
 ---
 id: nuxt-03
-title: 使用 definePageMeta 设置页面元数据
+title: Use definePageMeta to Set Page Metadata
 priority: high
 category: nuxt-specific
 tags: [nuxt, page-meta, middleware]
 ---
 
-# 使用 definePageMeta 设置页面元数据
+# Use definePageMeta to Set Page Metadata
 
-## 问题
-页面级配置（布局、中间件、过渡）分散难以管理。
+## Problem
+Page-level configuration (layout, middleware, transitions) is scattered and hard to manage.
 
-## 正确用法
+## Correct Usage
 ```vue
 <!-- pages/dashboard.vue -->
 <script setup lang="ts">
 definePageMeta({
-  // 布局
+  // Layout
   layout: 'admin',
 
-  // 中间件
+  // Middleware
   middleware: ['auth', 'admin'],
 
-  // 页面过渡
+  // Page transition
   pageTransition: {
     name: 'slide',
     mode: 'out-in'
   },
 
-  // 布局过渡
+  // Layout transition
   layoutTransition: {
     name: 'fade'
   },
 
-  // 保持组件状态
+  // Keep component state
   keepalive: true,
 
-  // 自定义元数据
-  title: '控制台',
+  // Custom metadata
+  title: 'Dashboard',
   requiredPermissions: ['admin:read']
 })
 </script>
 ```
 
-## 动态元数据
+## Dynamic Metadata
 ```vue
 <script setup lang="ts">
 const route = useRoute()
 
 definePageMeta({
-  // 根据路由参数选择布局
+  // Choose layout based on route params
   layout: 'default',
 
-  // 中间件可以是函数
+  // Middleware can be a function
   middleware: [
     function (to, from) {
-      // 自定义逻辑
+      // Custom logic
       if (!isAuthenticated()) {
         return navigateTo('/login')
       }
     }
   ],
 
-  // 验证路由参数
+  // Validate route params
   validate: async (route) => {
     return /^\d+$/.test(route.params.id as string)
   }
@@ -70,19 +70,19 @@ definePageMeta({
 </script>
 ```
 
-## 读取页面元数据
+## Reading Page Metadata
 ```vue
 <script setup lang="ts">
 const route = useRoute()
 
-// 访问当前页面的元数据
+// Access current page's metadata
 const pageTitle = route.meta.title
 const permissions = route.meta.requiredPermissions
 </script>
 ```
 
-## 原因
-- 集中管理页面配置
-- 编译时优化（不是运行时）
-- 类型安全
-- 支持代码分割
+## Why
+- Centralized page configuration management
+- Compile-time optimization (not runtime)
+- Type safety
+- Supports code splitting

@@ -1,25 +1,25 @@
 ---
 id: fetch-07
-title: 使用 useAsyncData 处理复杂逻辑
+title: Use useAsyncData for Complex Logic
 priority: medium
 category: data-fetching
 tags: [data-fetching, async-data, transform]
 ---
 
-# 使用 useAsyncData 处理复杂逻辑
+# Use useAsyncData for Complex Logic
 
-## 问题
-`useFetch` 适合简单请求，复杂数据获取和转换需要更灵活的方式。
+## Problem
+`useFetch` is suitable for simple requests. Complex data fetching and transformation needs more flexibility.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
-// 错误：多次请求后手动组合数据
+// Bad: Multiple requests then manually combining data
 const { data: user } = await useFetch('/api/user')
 const { data: posts } = await useFetch('/api/posts')
 const { data: comments } = await useFetch('/api/comments')
 
-// 手动计算组合数据
+// Manually computing combined data
 const pageData = computed(() => ({
   user: user.value,
   postCount: posts.value?.length,
@@ -28,10 +28,10 @@ const pageData = computed(() => ({
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
-// 使用 useAsyncData 统一处理
+// Use useAsyncData for unified handling
 const { data: pageData, pending, error } = await useAsyncData(
   'page-data',
   async () => {
@@ -41,7 +41,7 @@ const { data: pageData, pending, error } = await useAsyncData(
       $fetch('/api/comments')
     ])
 
-    // 直接返回组合后的数据
+    // Return combined data directly
     return {
       user,
       postCount: posts.length,
@@ -53,11 +53,11 @@ const { data: pageData, pending, error } = await useAsyncData(
 </script>
 ```
 
-## 数据转换 transform
+## Data Transformation with transform
 ```vue
 <script setup lang="ts">
 const { data: users } = await useFetch('/api/users', {
-  // 在客户端和服务端都执行
+  // Executes on both client and server
   transform(response) {
     return response.data.map(user => ({
       ...user,
@@ -69,7 +69,7 @@ const { data: users } = await useFetch('/api/users', {
 </script>
 ```
 
-## 结合外部数据源
+## Combining with External Data Sources
 ```vue
 <script setup lang="ts">
 const searchQuery = ref('')
@@ -79,7 +79,7 @@ const { data: results } = await useAsyncData(
   async () => {
     if (!searchQuery.value) return []
 
-    // 可以调用任何异步函数，不限于 $fetch
+    // Can call any async function, not limited to $fetch
     const response = await someExternalSDK.search(searchQuery.value)
     return response.items
   },
@@ -92,16 +92,16 @@ const { data: results } = await useAsyncData(
 ```
 
 ## useFetch vs useAsyncData
-| 场景 | 推荐 |
-|------|------|
-| 简单 API 请求 | `useFetch` |
-| 多个请求组合 | `useAsyncData` |
-| 需要复杂转换 | `useAsyncData` |
-| 非 HTTP 数据源 | `useAsyncData` |
-| 需要自定义缓存 key | 两者都可 |
+| Scenario | Recommended |
+|----------|-------------|
+| Simple API requests | `useFetch` |
+| Combining multiple requests | `useAsyncData` |
+| Complex transformations needed | `useAsyncData` |
+| Non-HTTP data sources | `useAsyncData` |
+| Custom cache key needed | Either works |
 
-## 原因
-- `useAsyncData` 提供更大的灵活性
-- 可以组合多个数据源
-- 支持任意异步操作，不限于 fetch
-- 转换逻辑集中管理，更易维护
+## Why
+- `useAsyncData` provides greater flexibility
+- Can combine multiple data sources
+- Supports any async operation, not limited to fetch
+- Centralized transformation logic is easier to maintain

@@ -1,17 +1,17 @@
 ---
 id: nuxt-02
-title: 正确使用 Nuxt Layers
+title: Correctly Use Nuxt Layers
 priority: medium
 category: nuxt-specific
 tags: [nuxt, layers, modular]
 ---
 
-# 正确使用 Nuxt Layers
+# Correctly Use Nuxt Layers
 
-## 问题
-大型项目代码难以复用和维护。
+## Problem
+Code in large projects is difficult to reuse and maintain.
 
-## Layer 结构
+## Layer Structure
 ```
 my-layer/
 ├── nuxt.config.ts
@@ -25,35 +25,35 @@ my-layer/
     └── my-plugin.ts
 ```
 
-## 使用 Layer
+## Using Layers
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   extends: [
-    // 本地 layer
+    // Local layer
     './layers/base',
     './layers/admin',
 
-    // npm 包
+    // npm package
     '@my-org/nuxt-base-layer',
 
-    // GitHub（需要安装 giget）
+    // GitHub (requires giget)
     'github:user/repo/layer'
   ]
 })
 ```
 
-## 创建可复用 Layer
+## Creating Reusable Layers
 ```ts
 // layers/base/nuxt.config.ts
 export default defineNuxtConfig({
-  // 基础配置
+  // Base configuration
   modules: ['@pinia/nuxt'],
 
-  // 公共样式
+  // Common styles
   css: ['./assets/base.css'],
 
-  // 默认配置，可被上层覆盖
+  // Default config, can be overridden by parent
   runtimeConfig: {
     public: {
       apiBase: '/api'
@@ -62,18 +62,18 @@ export default defineNuxtConfig({
 })
 ```
 
-## Layer 优先级
+## Layer Priority
 ```ts
-// 后面的 layer 覆盖前面的
+// Later layers override earlier ones
 extends: [
-  './layers/base',     // 优先级最低
-  './layers/feature',  // 中间
-  // 主项目配置优先级最高
+  './layers/base',     // Lowest priority
+  './layers/feature',  // Middle
+  // Main project config has highest priority
 ]
 ```
 
-## 原因
-- 代码复用跨项目
-- 关注点分离
-- 独立开发和测试
-- 类似微前端的模块化架构
+## Why
+- Code reuse across projects
+- Separation of concerns
+- Independent development and testing
+- Modular architecture similar to micro-frontends

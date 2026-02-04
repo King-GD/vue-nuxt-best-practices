@@ -1,40 +1,40 @@
 ---
 id: fetch-04
-title: 正确设置 key 避免重复请求
+title: Set key Correctly to Avoid Duplicate Requests
 priority: high
 category: data-fetching
 tags: [data-fetching, cache, key]
 ---
 
-# 正确设置 key 避免重复请求
+# Set key Correctly to Avoid Duplicate Requests
 
-## 问题
-相同的请求可能被多次发起，浪费带宽和服务器资源。
+## Problem
+The same request may be initiated multiple times, wasting bandwidth and server resources.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
 const route = useRoute()
 
-// 错误：每次组件重新挂载都会发起新请求
+// Bad: New request on every component remount
 const { data } = await useFetch(`/api/article/${route.params.id}`)
 
-// 错误：动态 URL 没有设置 key，可能导致缓存问题
+// Bad: Dynamic URL without key may cause caching issues
 const { data: user } = await useFetch(() => `/api/users/${userId.value}`)
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const route = useRoute()
 
-// 正确：设置唯一 key，相同 key 复用缓存
+// Correct: Set unique key, same key reuses cache
 const { data } = await useFetch(`/api/article/${route.params.id}`, {
   key: `article-${route.params.id}`
 })
 
-// 正确：使用 useAsyncData 明确设置 key
+// Correct: Use useAsyncData with explicit key
 const { data: user } = await useAsyncData(
   `user-${userId.value}`,
   () => $fetch(`/api/users/${userId.value}`)
@@ -42,18 +42,18 @@ const { data: user } = await useAsyncData(
 </script>
 ```
 
-## 监听参数变化自动刷新
+## Auto-Refresh on Parameter Changes
 ```vue
 <script setup lang="ts">
 const route = useRoute()
 
-// watch: true 会在 URL 变化时自动刷新
+// watch: true auto-refreshes when URL changes
 const { data } = await useFetch(() => `/api/article/${route.params.id}`, {
   key: `article-${route.params.id}`,
   watch: [() => route.params.id]
 })
 
-// 或使用计算属性作为 URL
+// Or use computed property as URL
 const apiUrl = computed(() => `/api/search?q=${searchQuery.value}`)
 const { data, refresh } = await useFetch(apiUrl, {
   key: () => `search-${searchQuery.value}`
@@ -61,35 +61,35 @@ const { data, refresh } = await useFetch(apiUrl, {
 </script>
 ```
 
-## 手动刷新和清除缓存
+## Manual Refresh and Cache Clearing
 ```vue
 <script setup lang="ts">
 const { data, refresh, clear } = await useFetch('/api/data', {
   key: 'my-data'
 })
 
-// 刷新数据（使用缓存 key）
+// Refresh data (uses cache key)
 async function handleRefresh() {
   await refresh()
 }
 
-// 清除缓存并刷新
+// Clear cache and refresh
 async function handleClearAndRefresh() {
   clear()
   await refresh()
 }
 
-// 全局清除缓存
+// Clear all cache globally
 function clearAllCache() {
   clearNuxtData()
-  // 或清除特定 key
+  // Or clear specific key
   clearNuxtData('my-data')
 }
 </script>
 ```
 
-## 原因
-- `useFetch` 默认使用 URL 作为缓存 key
-- 相同 key 的请求会复用缓存数据
-- 正确的 key 策略可以避免重复请求，提升性能
-- 动态 URL 需要明确的 key 策略来确保正确的缓存行为
+## Why
+- `useFetch` uses URL as cache key by default
+- Requests with the same key reuse cached data
+- Proper key strategy avoids duplicate requests, improving performance
+- Dynamic URLs need explicit key strategy to ensure correct caching behavior

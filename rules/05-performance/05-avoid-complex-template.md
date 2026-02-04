@@ -1,28 +1,28 @@
 ---
 id: perf-05
-title: 避免模板中的复杂表达式
+title: Avoid Complex Template Expressions
 priority: high
 category: performance
 tags: [performance, template, computed]
 ---
 
-# 避免模板中的复杂表达式
+# Avoid Complex Template Expressions
 
-## 问题
-模板中的复杂表达式在每次渲染时都会重新计算。
+## Problem
+Complex expressions in templates are recalculated on every render.
 
-## 错误示例
+## Bad Example
 ```vue
 <template>
-  <!-- 错误：每次渲染都执行过滤和排序 -->
+  <!-- Bad: Filter and sort execute on every render -->
   <div v-for="item in items.filter(i => i.active).sort((a, b) => a.name.localeCompare(b.name))" :key="item.id">
     {{ item.name }}
   </div>
 
-  <!-- 错误：复杂的格式化逻辑 -->
-  <span>{{ new Date(timestamp).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+  <!-- Bad: Complex formatting logic -->
+  <span>{{ new Date(timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
 
-  <!-- 错误：多次调用方法 -->
+  <!-- Bad: Multiple method calls -->
   <div>
     <span>{{ formatPrice(item.price) }}</span>
     <span>{{ formatPrice(item.discount) }}</span>
@@ -31,28 +31,28 @@ tags: [performance, template, computed]
 </template>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const items = ref<Item[]>([])
 
-// 使用 computed 缓存计算结果
+// Use computed to cache calculation results
 const activeItems = computed(() =>
   items.value
     .filter(i => i.active)
     .sort((a, b) => a.name.localeCompare(b.name))
 )
 
-// 格式化函数
+// Formatting function
 const formattedDate = computed(() =>
-  new Date(timestamp.value).toLocaleDateString('zh-CN', {
+  new Date(timestamp.value).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
 )
 
-// 价格相关计算
+// Price-related calculations
 const priceInfo = computed(() => ({
   price: formatPrice(item.value.price),
   discount: formatPrice(item.value.discount),
@@ -75,7 +75,7 @@ const priceInfo = computed(() => ({
 </template>
 ```
 
-## 原因
-- 模板表达式在每次渲染时执行
-- computed 有缓存，依赖不变则不重新计算
-- 复杂逻辑放在 script 中更易测试和维护
+## Why
+- Template expressions execute on every render
+- computed has caching, doesn't recalculate if dependencies unchanged
+- Complex logic in script is easier to test and maintain

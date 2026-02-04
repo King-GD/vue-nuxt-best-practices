@@ -1,39 +1,39 @@
 ---
 id: reactivity-07
-title: 使用 triggerRef 强制更新
+title: Use triggerRef for Force Updates
 priority: low
 category: reactivity
 tags: [reactivity, triggerRef, shallowRef]
 ---
 
-# 使用 triggerRef 强制更新
+# Use triggerRef for Force Updates
 
-## 问题
-使用 shallowRef 时，修改内部属性不会触发视图更新。
+## Problem
+When using shallowRef, modifying internal properties doesn't trigger view updates.
 
-## 错误示例
+## Bad Example
 ```vue
 <script setup lang="ts">
 const data = shallowRef({ count: 0, items: [] })
 
 function increment() {
-  // 错误：修改内部属性不会触发更新
+  // Bad: Modifying internal property doesn't trigger update
   data.value.count++
 }
 
 function addItem() {
-  // 错误：push 不会触发更新
+  // Bad: push doesn't trigger update
   data.value.items.push('new item')
 }
 </script>
 ```
 
-## 正确示例
+## Good Example
 ```vue
 <script setup lang="ts">
 const data = shallowRef({ count: 0, items: [] })
 
-// 方式1：替换整个对象（推荐）
+// Option 1: Replace entire object (recommended)
 function increment() {
   data.value = { ...data.value, count: data.value.count + 1 }
 }
@@ -45,10 +45,10 @@ function addItem() {
   }
 }
 
-// 方式2：修改后手动触发更新
+// Option 2: Manually trigger update after modification
 function incrementWithTrigger() {
   data.value.count++
-  triggerRef(data) // 手动触发更新
+  triggerRef(data) // Manually trigger update
 }
 
 function addItemWithTrigger() {
@@ -58,26 +58,26 @@ function addItemWithTrigger() {
 </script>
 ```
 
-## 批量修改后触发
+## Trigger After Batch Modifications
 ```vue
 <script setup lang="ts">
 const tableData = shallowRef<Row[]>([])
 
-// 批量修改多个属性后一次性触发
+// Trigger once after batch modifying multiple properties
 function updateMultipleRows(updates: Map<number, Partial<Row>>) {
   updates.forEach((update, index) => {
     Object.assign(tableData.value[index], update)
   })
-  // 所有修改完成后触发一次更新
+  // Trigger update once after all modifications complete
   triggerRef(tableData)
 }
 </script>
 ```
 
-## customRef 自定义触发逻辑
+## customRef for Custom Trigger Logic
 ```vue
 <script setup lang="ts">
-// 创建防抖的 ref
+// Create debounced ref
 function useDebouncedRef<T>(value: T, delay = 300) {
   let timeout: NodeJS.Timeout
 
@@ -90,7 +90,7 @@ function useDebouncedRef<T>(value: T, delay = 300) {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
         value = newValue
-        trigger() // 延迟触发
+        trigger() // Delayed trigger
       }, delay)
     }
   }))
@@ -100,8 +100,8 @@ const searchQuery = useDebouncedRef('', 500)
 </script>
 ```
 
-## 原因
-- shallowRef 只追踪 .value 的变化，不追踪内部属性
-- triggerRef 强制触发依赖更新
-- 适合性能敏感场景的精细控制
-- 替换整个对象是更清晰的不可变更新模式
+## Why
+- shallowRef only tracks .value changes, not internal properties
+- triggerRef forces dependency updates
+- Suitable for fine-grained control in performance-sensitive scenarios
+- Replacing entire object is a clearer immutable update pattern
