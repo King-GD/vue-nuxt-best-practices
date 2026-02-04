@@ -1,0 +1,55 @@
+{
+  "name": "vue-nuxt-best-practices",
+  "version": "1.0.0",
+  "description": "Vue3 & Nuxt4 performance best practices for AI coding agents",
+  "author": "KGD",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/skills.git",
+    "directory": "vue-nuxt-best-practices"
+  },
+  "homepage": "https://github.com/anthropics/skills/tree/main/vue-nuxt-best-practices",
+  "bugs": {
+    "url": "https://github.com/anthropics/skills/issues"
+  },
+  "agentSkill": {
+    "name": "vue-nuxt-best-practices",
+    "description": "57 performance optimization rules for Vue3 and Nuxt4 applications, covering SSR, reactivity, data fetching, and more",
+    "entrypoint": "SKILL.md",
+    "categories": [
+      "ssr-hydration",
+      "data-fetching",
+      "reactivity",
+      "component-design",
+      "performance",
+      "state-management",
+      "bundle-optimization",
+      "nuxt-specific"
+    ]
+  },
+  "scripts": {
+    "build": "node scripts/build.js"
+  },
+  "keywords": [
+    "vue3",
+    "nuxt4",
+    "nuxt",
+    "vue",
+    "best-practices",
+    "agent-skill",
+    "ai-coding",
+    "performance",
+    "ssr",
+    "claude-code",
+    "cursor",
+    "ai-agent"
+  ],
+  "files": [
+    "SKILL.md",
+    "AGENTS.md",
+    "README.md",
+    "rules/**/*.md"
+  ]
+}
